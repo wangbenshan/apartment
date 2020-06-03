@@ -34,4 +34,6 @@ return [
     'deploy'      => 0,
     // 分离
     'rw_separate' => false,
+    //数据库前缀
+    'prefix'      => 'ap_',
 ];
