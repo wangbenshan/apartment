@@ -1,0 +1,90 @@
+{extend name='main'}
+
+{block name="button"}
+
+{if auth("add")}
+<button data-open='{:url("add")}' data-title="添加房间" class='layui-btn layui-btn-sm layui-btn-primary'>添加房间</button>
+{/if}
+
+{if auth("remove")}
+<button data-action='{:url("remove")}' data-csrf="{:systoken('remove')}" data-rule="id#{key}" class='layui-btn layui-btn-sm layui-btn-primary'>删除房间</button>
+{/if}
+
+{/block}
+
+{block name="content"}
+<div class="think-box-shadow">
+    {empty name='list'}
+    <blockquote class="layui-elem-quote">没 有 记 录 哦！</blockquote>
+    {else}
+    <table class="layui-table margin-top-10" lay-skin="line">
+        <thead>
+        <tr>
+            <th class='list-table-check-td think-checkbox'>
+                <label><input data-auto-none data-check-target='.list-check-box' type='checkbox'></label>
+            </th>
+            <th class='text-left nowrap'>房间名称</th>
+            <th class='text-left nowrap'>所属校区</th>
+            <th class="text-center nowrap">房间规格</th>
+            <th class="text-center nowrap">房间图片</th>
+            <th class="text-center nowrap">配套设施</th>
+            <th class="text-center nowrap">添加者</th>
+            <th class="text-center nowrap">状态</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $list as $key=>$vo}
+        <tr>
+            <td class='list-table-check-td think-checkbox'>
+                <label><input class="list-check-box" value='{$vo.id}' type='checkbox'></label>
+            </td>
+            <td class='text-left'>{$vo->name}</td>
+            <td class="text-left nowrap">{$campus[$vo->campus]['name']}</td>
+            <td class='text-center nowrap'>{$beds_config[$vo->bed_total]['text']}</td>
+            <td class='text-center nowrap'>
+                <?php $pictures = explode('|', $vo->pictures); ?>
+                {foreach $pictures as $pic)}
+                <div class="uploadimage uploadimagemtl" data-tips-image="{$pic}" style="background-image:url('{$pic}');"></div>
+                {/foreach}
+            </td>
+            <td class='text-center'>
+                {if($vo->facilities->has_wifi == 1)}<span class="margin-5">无线wifi</span>{/if}
+                {if($vo->facilities->has_window == 1)}<span class="margin-5">有窗</span>{/if}
+                {if($vo->facilities->has_toilet == 1)}<span class="margin-5">独立卫生间</span>{/if}
+                {if($vo->facilities->has_drink == 1)}<span class="margin-5">饮水设备</span>{/if}
+            </td>
+            <td class='text-center nowrap'>{$vo->roomAdder->username}</td>
+            <td class='text-center nowrap'>
+                {if($vo->status == 1)}
+                <span style="color:#5FB878">正常</span>
+                {else /}
+                <span style="color:#FF5722">禁用</span>
+                {/if}</td>
+            <td class='text-center nowrap'>
+                {if auth("admin/root/edit")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-sm" data-open='{:url("admin/rooms/edit")}?id={$vo.id}'>编 辑</a>
+                {/if}
+
+                {if auth("admin/beds/index")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-sm" data-open='{:url("admin/beds/index")}?id={$vo.id}'>床位</a>
+                {/if}
+
+                {if $vo.status eq 1 and auth("admin/rooms/forbid")}
+                <a class="layui-btn layui-btn-warm layui-btn-sm" data-action="{:url('forbid')}" data-value="id#{$vo.id};status#0" data-csrf="{:systoken('admin/rooms/forbid')}">禁 用</a>
+                {elseif $vo.status eq 0 and auth("admin/rooms/resume")}
+                <a class="layui-btn layui-btn-warm layui-btn-sm" data-action="{:url('resume')}" data-value="id#{$vo.id};status#1" data-csrf="{:systoken('admin/rooms/resume')}">启 用</a>
+                {/if}
+                {if auth("admin/rooms/remove")}
+                <a class="layui-btn layui-btn-danger layui-btn-sm" data-confirm="确定要删除数据吗?" data-action="{:url('remove')}" data-value="id#{$vo.id}" data-csrf="{:systoken('admin/rooms/remove')}">删 除</a>
+                {/if}
+            </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+    {/empty}
+</div>
+{/block}

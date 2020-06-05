@@ -1,0 +1,130 @@
+{extend name='admin@main'}
+
+{block name="content"}
+<form id="roomForm" autocomplete="off" class="layui-form layui-card">
+    <div class="layui-card-body think-box-shadow padding-left-40">
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs4 relative">
+                <span class="color-green">房间号</span>
+                <input name="name" value='{$vo->name|default=""}' lay-verify="required" required placeholder="请输入房间号" class="layui-input input_ctrl">
+            </label>
+            <label class="layui-col-xs4 relative">
+                <span class="color-green">所属校区</span>
+                <select name="campus" required class="layui-input input_ctrl" lay-verify="checkCampus">
+                    <option value="-1">请选择校区</option>
+                    {foreach $campus as $val}
+                    <option value="{$val->id}" {if(isset($vo) && $val->id == $vo->campus)}selected{/if} >{$val->name}</option>
+                    {/foreach}
+                </select>
+            </label>
+            <label class="layui-col-xs4 relative">
+                <span class="color-green">房间规格</span>
+                <select lay-filter="bed_total" name="bed_total" required class="layui-input input_ctrl" lay-verify="checkBedNumbers">
+                    <option value="-1">请选择房间规格</option>
+                    {foreach $beds as $bed}
+                    <option value="{$bed['num']}" {if(isset($vo) && $bed['num'] == $vo->bed_total)}selected{/if} >{$bed['text']}</option>
+                    {/foreach}
+                </select>
+            </label>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <div class="layui-col-xs12 relative">
+                <span class="color-green label-required-prev">房间照片</span>
+                <table class="layui-table">
+                    <tr><th class="text-left">展示图片(最多上传 5 张)</th></tr>
+                    <tr>
+                        <td width="auto" class="text-left">
+                            <input type="hidden" class="input_ctrl" name="upload_pic" data-type="jpg,jpeg,png,gif" value="{$vo->pictures|default=''}" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <div class="layui-col-xs12 relative">
+                <span class="color-green label-required-prev">房间设施</span>
+                <div>
+                    <input type="checkbox" name="has_wifi" title="无线-WIFI" {if(isset($vo) && $vo->facilities->has_wifi == 1)}checked{/if} />
+                    <input type="checkbox" name="has_toilet" title="独立卫生间" {if(isset($vo) && $vo->facilities->has_toilet == 1)}checked{/if} />
+                    <input type="checkbox" name="has_window" title="窗户" {if(isset($vo) && $vo->facilities->has_window == 1)}checked{/if} />
+                    <input type="checkbox" name="has_drink" title="饮水设施" {if(isset($vo) && $vo->facilities->has_drink == 1)}checked{/if} />
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item text-center">
+            {notempty name='vo.id'}<input type="hidden" name="room_id" value="{$vo->id|default=''}">{/notempty}
+            <button class="layui-btn layui-btn-danger" id="cancel_edit" type="button">取消编辑</button>
+            <button class="layui-btn" lay-submit lay-filter="*">保存数据</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name='script'}
+<script>
+    form.render();
+
+    // 提交
+    form.verify({
+        checkCampus: function(value, item){
+            if(value == -1) return '请选择校区';
+        },
+        checkBedNumbers: function(value, item){
+            if(value == -1) return '请选择房间规格';
+        }
+    })
+
+    form.on('submit(*)', function(){
+        let data = {};
+        $('.input_ctrl').each(function(i,n){
+            data[$(n).prop('name')] = $(n).val();
+        })
+
+        if(data['upload_pic'].split('|').length > 5){
+            $.msg.error('最多上传5张照片！');
+            return false;
+        }
+
+        $('[name^=has_]').each(function(i, n){
+            data[$(n).prop('name')] = $(n).prop('checked') ? '1' : '0';
+        })
+
+        /*{notempty name='vo.id'}*/
+        data['id'] = $('[name=room_id]').val();
+        /*{/notempty}*/
+
+        $.ajax({
+            url: "{:request()->url()}",
+            type: 'post',
+            dataType: 'json',
+            data: data,
+            headers: {"User-Token-Csrf": $("input[name=_token_]").val()},
+            success: function(res){
+                if(res.code == 1){
+                    $.msg.success(res.info, 2, function(){
+                        $.form.href("{:url('admin/rooms/index')}");
+                    });
+                }else{
+                    $.msg.error(res.info);
+                }
+            }, error: function(err){
+                $.msg.error('请求失败，请重试！');
+            }
+        });
+
+        return false;
+    });
+
+    // 上传图片
+    $('[name="upload_pic"]').uploadMultipleImage();
+
+    // 取消编辑
+    $('#cancel_edit').click(function(){
+        $.msg.confirm('确定要取消编辑吗？', function(index){
+            history.go(-1);
+            layer.close(index);
+        })
+    });
+</script>
+{/block}
