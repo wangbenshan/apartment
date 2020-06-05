@@ -68,7 +68,7 @@ class Rooms extends Controller
 
             // 获取room 数据
             $room_id = $this->request->get('id');
-            $room = RoomsModel::where('id', $room_id)->with('beds')->findOrEmpty();
+            $room = RoomsModel::where('id', $room_id)->findOrEmpty();
 
             $this->assign('vo', $room);
             $this->fetch('form');
@@ -82,6 +82,22 @@ class Rooms extends Controller
             }else{
                 $this->error($res['msg']);
             }
+        }
+    }
+
+    public function view()
+    {
+        if($this->request->isGet()){
+            $this->title = '查看房间';
+
+            $room_id = $this->request->get('id');
+            $room = RoomsModel::get($room_id);
+            $this->assign('vo', $room);
+
+            $this->assign('campus', RoomService::getCampus($room->campus));
+            $this->assign('bed_total_text', RoomService::getBedConfig($room->bed_total));
+
+            $this->fetch();
         }
     }
 

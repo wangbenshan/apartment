@@ -23,11 +23,13 @@
             <th class='list-table-check-td think-checkbox'>
                 <label><input data-auto-none data-check-target='.list-check-box' type='checkbox'></label>
             </th>
-            <th class='text-left nowrap'>房间名称</th>
-            <th class='text-left nowrap'>所属校区</th>
+            <th class='text-center nowrap'>房间名称</th>
+            <th class='text-center nowrap'>所属校区</th>
+            <th class='text-center nowrap'>价格</th>
+            <th class='text-center nowrap'>床位总数</th>
+            <th class='text-center nowrap'>入住人数</th>
+            <th class='text-center nowrap'>预定未住</th>
             <th class="text-center nowrap">房间规格</th>
-            <th class="text-center nowrap">房间图片</th>
-            <th class="text-center nowrap">配套设施</th>
             <th class="text-center nowrap">添加者</th>
             <th class="text-center nowrap">状态</th>
             <th></th>
@@ -39,21 +41,12 @@
             <td class='list-table-check-td think-checkbox'>
                 <label><input class="list-check-box" value='{$vo.id}' type='checkbox'></label>
             </td>
-            <td class='text-left'>{$vo->name}</td>
-            <td class="text-left nowrap">{$campus[$vo->campus]['name']}</td>
+            <td class='text-center'>{$vo->name}</td>
+            <td class="text-center nowrap">{$campus[$vo->campus]['name']}</td>
+            <td class="text-center nowrap">{$vo->bed_total}</td>
+            <td class="text-center nowrap"></td>
+            <td class="text-center nowrap"></td>
             <td class='text-center nowrap'>{$beds_config[$vo->bed_total]['text']}</td>
-            <td class='text-center nowrap'>
-                <?php $pictures = explode('|', $vo->pictures); ?>
-                {foreach $pictures as $pic)}
-                <div class="uploadimage uploadimagemtl" data-tips-image="{$pic}" style="background-image:url('{$pic}');"></div>
-                {/foreach}
-            </td>
-            <td class='text-center'>
-                {if($vo->facilities->has_wifi == 1)}<span class="margin-5">无线wifi</span>{/if}
-                {if($vo->facilities->has_window == 1)}<span class="margin-5">有窗</span>{/if}
-                {if($vo->facilities->has_toilet == 1)}<span class="margin-5">独立卫生间</span>{/if}
-                {if($vo->facilities->has_drink == 1)}<span class="margin-5">饮水设备</span>{/if}
-            </td>
             <td class='text-center nowrap'>{$vo->roomAdder->username}</td>
             <td class='text-center nowrap'>
                 {if($vo->status == 1)}
@@ -62,14 +55,14 @@
                 <span style="color:#FF5722">禁用</span>
                 {/if}</td>
             <td class='text-center nowrap'>
+                {if auth("admin/rooms/view")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-sm" data-open='{:url("admin/rooms/view")}?id={$vo.id}'>查看</a>
+                {/if}
+
                 {if auth("admin/root/edit")}
                 <span class="text-explode">|</span>
                 <a class="layui-btn layui-btn-sm" data-open='{:url("admin/rooms/edit")}?id={$vo.id}'>编 辑</a>
-                {/if}
-
-                {if auth("admin/beds/index")}
-                <span class="text-explode">|</span>
-                <a class="layui-btn layui-btn-sm" data-open='{:url("admin/beds/index")}?id={$vo.id}'>床位</a>
                 {/if}
 
                 {if $vo.status eq 1 and auth("admin/rooms/forbid")}

@@ -1,8 +1,7 @@
 <?php
 namespace app\common\service;
 
-use app\admin\validate\RoomValidate;
-use app\common\model\Beds;
+use app\admin\validate\RoomsValidate;
 use app\common\model\Campus;
 use app\common\model\Rooms;
 use think\Db;
@@ -42,7 +41,7 @@ class RoomService extends CommonService
     {
         $this->startTrans();
         try {
-            $validate = new RoomValidate();
+            $validate = new RoomsValidate();
             if(!$validate->scene('addRoom')->check($data)){
                 throw new Exception($validate->getError());
             }
@@ -89,7 +88,7 @@ class RoomService extends CommonService
     {
         $this->startTrans();
         try {
-            $validate = new RoomValidate();
+            $validate = new RoomsValidate();
             if(!$validate->scene('addRoom')->check($data)){
                 throw new Exception($validate->getError());
             }
@@ -119,20 +118,6 @@ class RoomService extends CommonService
             $res = Db::name('rooms')->update($room_data);
             if($res == 0) throw new Exception('未作修改！');
 
-            /*// 修改床位数据
-            $bed_data = [];
-            foreach($data['beds'] as $bed){
-                $temp = [];
-                $temp['name'] = $bed['name'];
-                $temp['size'] = $bed['size'];
-                $temp['price'] = $bed['size'];
-                $temp['adder'] = session('user.id');
-                $temp['room_id'] = $data['id'];
-                $bed_data[] = $temp;
-            }
-
-            $res = (new Beds)->saveAll($bed_data);*/
-
             $this->commit();
 
             return ['status' => 1];
@@ -147,9 +132,6 @@ class RoomService extends CommonService
     public function getRooms()
     {
         $rooms = Rooms::with([
-            'beds' => function($query){
-                $query->field('room_id, name');
-            },
             'roomAdder' => function($query){
                 $query->field('id, username');
             }

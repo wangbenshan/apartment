@@ -40,6 +40,7 @@ require.config({
         'jquery.ztree': ['plugs/ztree/ztree.all.min'],
         'jquery.masonry': ['plugs/jquery/masonry.min'],
         'jquery.autocompleter': ['plugs/jquery/autocompleter.min'],
+        'xlsx': ['plugs/xlsx/xlsx.full.min'],
     },
     shim: {
         'websocket': {deps: [baseRoot + 'plugs/socket/swfobject.min.js']},

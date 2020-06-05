@@ -4,7 +4,7 @@ namespace app\admin\validate;
 
 use think\Validate;
 
-class RoomValidate extends Validate
+class RoomsValidate extends Validate
 { 
     protected $rule = [
         'name'              =>  'require|max:20',
