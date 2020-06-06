@@ -1,0 +1,63 @@
+<div class="layui-form-item layui-row layui-col-space15">
+    <label class="layui-col-xs3">
+        <span class="color-green">校区</span>
+        <select name="campus_id" lay-filter="campus_id" required class="layui-input">
+            <option value="">请选择校区</option>
+            {foreach $campus as $val}
+            <option value="{$val->id}" {if isset($vo->campus_id) && $vo->campus_id == $val->id}selected{/if}>{$val->name}</option>
+            {/foreach}
+        </select>
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">房间规格</span>
+        <select name="room_type_num" lay-filter="room_type_num" required class="layui-input">
+            <option value="">请选择房间规格</option>
+            {foreach $type as $val}
+            <option value="{$val['num']}" {if isset($vo->room_type_num) && $vo->room_type_num == $val['num']}selected{/if}>{$val['text']}</option>
+            {/foreach}
+        </select>
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">房间号</span>
+        <select name="room_id"  lay-filter="room_id" {if request()->action() != 'reserve'}required{/if} class="layui-input input_ctrl">
+            <option value="">请选择房间</option>
+            {notempty name="av_rooms"}
+            {foreach $av_rooms as $room}
+            <option value="{$room['id']}">{$room['name']}     <span class="margin-left-10">({$room['o_count']}/{$room['bed_total']})</span></option>
+            {/foreach}
+            {/notempty}
+        </select>
+    </label>
+</div>
+
+<script>
+    form.on('select(campus_id)', function(){
+        getRoomList();
+    });
+    form.on('select(room_type_num)', function(){
+        getRoomList();
+    });
+
+    function getRoomList(){
+        let campus = $('[name=campus_id]').val(),
+            type = $('[name=room_type_num]').val();
+        $.ajax({
+            url: "{:url('admin/rooms/getAvailableRoomsByCampus')}",
+            type: 'post',
+            dataType: 'json',
+            data: {campus, type},
+            success: function(res){
+                let room = '<option value="">请选择房间</option>';
+                if(res.length != 0){
+                    for(let i in res){
+                        room += '<option value="'+ res[i]['id'] +'">'+ res[i]['name'] +'     <span class="margin-left-10">('+ res[i]['o_count'] +'/'+ res[i]['bed_total'] +')</span></option>';
+                    }
+                }
+                $('[name=room_id]').html(room);
+                form.render();
+            }, error: function(err){
+                $.msg.error('请求失败，请重试！');
+            }
+        });
+    }
+</script>

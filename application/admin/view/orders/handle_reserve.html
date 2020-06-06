@@ -1,16 +1,22 @@
-{extend name='admin@main'}
-
-{block name="content"}
 <form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
     <div class="layui-card-body think-box-shadow padding-left-40">
+        {if empty($vo->room_name)}
+        <div class="layui-row layui-col-space15">
+            <h4 class="font-w8 font-s16 color-blue">安排房间</h4>
+        </div>
+        {include file="orders/room_select"}
+        {/if}
+        <div class="layui-row layui-col-space15">
+            <h4 class="font-w8 font-s16 color-blue">预定信息</h4>
+        </div>
         <div class="layui-form-item layui-row layui-col-space15">
             <label class="layui-col-xs3">
-                <span class="color-green">定金（¥）</span>
-                <input type="number" name="front_money" value='{$vo->front_money|default=""}' class="layui-input" required placeholder="请输入定金" />
+                <span class="color-green">订单总额（¥）</span>
+                <input type="number" name="total_money" value='{$vo->total_money|default=""}' class="layui-input" readonly />
             </label>
             <label class="layui-col-xs3">
-                <span class="color-green">订单总额（¥）</span>
-                <input type="number" name="total_money" value='{$vo->total_money|default=""}' class="layui-input" required placeholder="请输入订单总金额" />
+                <span class="color-green">已交定金（¥）</span>
+                <input type="number" name="front_money" value='{$vo->front_money|default=""}' class="layui-input" readonly />
             </label>
             <label class="layui-col-xs3">
                 <span class="color-green">应交尾款（¥）</span>
@@ -18,22 +24,23 @@
             </label>
         </div>
         <div class="layui-form-item layui-row layui-col-space15">
-            <label class="layui-col-xs6">
-                <span class="color-green">订单备注</span>
-                <textarea name="comment" class="layui-textarea" placeholder="请输入订单备注">{$vo->comment|default=""}</textarea>
+            <label class="layui-col-xs3">
+                <span class="color-green">押金（¥）</span>
+                <input type="number" name="deposit" value='{$vo->deposit|default=""}' class="layui-input" required placeholder="请输入押金" />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">实交尾款（¥）</span>
+                <input type="number" name="actual_rest_money" value='{$vo->actual_rest_money|default=""}' class="layui-input" required placeholder="请输入实交尾款" />
             </label>
         </div>
+        {notempty name="vo->id"}<input type="hidden" name="id" value="{$vo->id}">{/notempty}
         <div class="layui-form-item text-center">
-            <button class="layui-btn layui-btn-danger" id="cancel_edit" type="button">取消编辑</button>
+            <button class="layui-btn layui-btn-danger" type="button" data-confirm="确定要取消修改吗？" data-close="">取消编辑</button>
             <button class="layui-btn" type='submit'>保存数据</button>
         </div>
     </div>
 </form>
-{/block}
 
-{block name='script'}
-{include file='orders/form_js'}
 <script>
     form.render();
 </script>
-{/block}

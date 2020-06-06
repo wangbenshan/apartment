@@ -3,6 +3,10 @@
 {block name="button"}
 
 {if auth("import")}
+<button data-href='{:url("export")}' data-title="导出订单" class='layui-btn layui-btn-sm layui-btn-primary'>导出订单</button>
+{/if}
+
+{if auth("import")}
 <button data-modal='{:url("import")}' data-title="导入订单" class='layui-btn layui-btn-sm layui-btn-primary'>导入订单</button>
 {/if}
 
@@ -80,7 +84,7 @@
                 {/if}
                 {if $vo.status == 10 && auth("admin/orders/handleReserve")}
                 <span class="text-explode">|</span>
-                <a class="layui-btn layui-btn-xs layui-btn-normal" data-modal='{:url("admin/orders/handleReserve")}?id={$vo.id}'>处理预定</a>
+                <a class="layui-btn layui-btn-xs layui-btn-warm" data-modal='{:url("admin/orders/handleReserve")}?id={$vo.id}'>处理预定</a>
                 {/if}
             </td>
         </tr>

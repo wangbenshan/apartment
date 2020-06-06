@@ -124,17 +124,9 @@ class Rooms extends Controller
     {
         if($this->request->isPost()){
             $data = $this->request->post();
-            $where_str = 'r.`status` = 1';
-            if(!empty($data['campus'])) $where_str .= ' AND r.campus = '.$data['campus'];
-            if(!empty($data['type'])) $where_str .= ' AND r.bed_total = '.$data['type'];
-            $sql = 'SELECT rr.*,oo.o_count from ap_rooms as rr
-                        LEFT JOIN (
-                            SELECT r.id as room_id,count(o.id) o_count from ap_rooms as r
-                            LEFT JOIN (SELECT id,room_id from ap_orders WHERE `status` in (10,20) ) as o on r.id = o.room_id
-                            WHERE '.$where_str.' GROUP BY r.id
-                        ) as oo on rr.id = oo.room_id WHERE rr.bed_total > oo.o_count';
-
-            $rooms = Db::query($sql);
+            $campus_id = empty($data['campus']) ? '' : $data['campus'];
+            $room_type = empty($data['type']) ? '' : $data['type'];
+            $rooms = (new RoomService())->getAvailableRoomsByCampus($campus_id, $room_type);
             return json($rooms);
         }
     }

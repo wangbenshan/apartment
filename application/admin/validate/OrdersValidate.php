@@ -72,4 +72,14 @@ class OrdersValidate extends Validate
         return $this->only(['campus_id', 'room_type_num', 'room_id', 'stu_name', 'sex', 'stu_phone',
             'stu_id_num', 'stu_id_num', 'book_in_time', 'departure_time', 'public_water_rate', 'total_money', 'deposit', 'pay_money']);
     }
+
+    public function sceneHandleReserve()
+    {
+        return $this->only(['campus_id', 'room_type_num', 'room_id', 'deposit', 'actual_rest_money']);
+    }
+
+    public function sceneHandleReserveForRoom()
+    {
+        return $this->only(['deposit', 'actual_rest_money']);
+    }
 }

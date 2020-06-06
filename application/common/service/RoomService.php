@@ -129,4 +129,20 @@ class RoomService extends CommonService
             return ['status' => -1., 'msg' => $e->getMessage()];
         }
     }
+
+    //
+    public function getAvailableRoomsByCampus($campus_id = '', $room_type = '')
+    {
+        $where_str = 'r.`status` = 1';
+        if($campus_id) $where_str .= ' AND r.campus = '.$campus_id;
+        if($room_type) $where_str .= ' AND r.bed_total = '.$room_type;
+        $sql = 'SELECT rr.*,oo.o_count from ap_rooms as rr
+                LEFT JOIN (
+                    SELECT r.id as room_id,count(o.id) o_count from ap_rooms as r
+                    LEFT JOIN (SELECT id,room_id from ap_orders WHERE `status` in (10,20) ) as o on r.id = o.room_id
+                    WHERE '.$where_str.' GROUP BY r.id
+                ) as oo on rr.id = oo.room_id WHERE rr.bed_total > oo.o_count';
+        $rooms = Db::query($sql);
+        return empty($rooms) ? [] : $rooms;
+    }
 }

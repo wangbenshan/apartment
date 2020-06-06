@@ -21,7 +21,8 @@
     "topthink/framework": "5.1.*",
     "zoujingli/ip2region": "^1.0",
     "zoujingli/think-library": "5.1.*-dev",
-    "zoujingli/weopen-developer": "dev-master"
+    "zoujingli/weopen-developer": "dev-master",
+    "phpoffice/phpspreadsheet": "^1.13"
   },
   "repositories": {
     "packagist": {

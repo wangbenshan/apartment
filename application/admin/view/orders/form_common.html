@@ -1,32 +1,7 @@
 <div class="layui-row layui-col-space15">
     <h4 class="font-w8 font-s16 color-blue">房间基本信息</h4>
 </div>
-<div class="layui-form-item layui-row layui-col-space15">
-    <label class="layui-col-xs3">
-        <span class="color-green">校区</span>
-        <select name="campus_id" lay-filter="campus_id" required class="layui-input">
-            <option value="">请选择校区</option>
-            {foreach $campus as $val}
-            <option value="{$val->id}">{$val->name}</option>
-            {/foreach}
-        </select>
-    </label>
-    <label class="layui-col-xs3">
-        <span class="color-green">房间规格</span>
-        <select name="room_type_num" lay-filter="room_type_num" required class="layui-input">
-            <option value="">请选择房间规格</option>
-            {foreach $type as $val}
-            <option value="{$val['num']}">{$val['text']}</option>
-            {/foreach}
-        </select>
-    </label>
-    <label class="layui-col-xs3">
-        <span class="color-green">房间号</span>
-        <select name="room_id"  lay-filter="room_id" {if request()->action() != 'reserve'}required{/if} class="layui-input input_ctrl">
-            <option value="">请选择房间</option>
-        </select>
-    </label>
-</div>
+{include file="orders/room_select"}
 <div class="layui-row layui-col-space15">
     <h4 class="font-w8 font-s16 color-blue">学生基本信息</h4>
 </div>
