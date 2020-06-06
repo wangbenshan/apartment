@@ -14,6 +14,42 @@
 
 {block name="content"}
 <div class="think-box-shadow">
+    <fieldset>
+        <legend>条件搜索</legend>
+        <form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">所属校区</label>
+                <div class="layui-input-inline">
+                    <select name="campus">
+                        <option value="">全部</option>
+                        {foreach $campus as $val}
+                        <option value="{$val['id']}" {$Think.get.campus == $val['id'] ? 'selected' : ''}>{$val['name']}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">房间规格</label>
+                <div class="layui-input-inline">
+                    <select name="type">
+                        <option value="">全部</option>
+                        {foreach $beds_config as $val}
+                        <option value="{$val['num']}" {$Think.get.campus == $val['num'] ? 'selected' : ''}>{$val['text']}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">房间名称</label>
+                <div class="layui-input-inline">
+                    <input name="name" value="{$Think.get.name|default=''}" placeholder="请输入房间名称" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+            </div>
+        </form>
+    </fieldset>
     {empty name='list'}
     <blockquote class="layui-elem-quote">没 有 记 录 哦！</blockquote>
     {else}
@@ -25,11 +61,11 @@
             </th>
             <th class='text-center nowrap'>房间名称</th>
             <th class='text-center nowrap'>所属校区</th>
-            <th class='text-center nowrap'>价格</th>
+            <th class="text-center nowrap">房间规格</th>
+            <th class='text-center nowrap'>床位价格（¥）</th>
             <th class='text-center nowrap'>床位总数</th>
             <th class='text-center nowrap'>入住人数</th>
             <th class='text-center nowrap'>预定未住</th>
-            <th class="text-center nowrap">房间规格</th>
             <th class="text-center nowrap">添加者</th>
             <th class="text-center nowrap">状态</th>
             <th></th>
@@ -41,27 +77,26 @@
             <td class='list-table-check-td think-checkbox'>
                 <label><input class="list-check-box" value='{$vo.id}' type='checkbox'></label>
             </td>
-            <td class='text-center'>{$vo->name}</td>
-            <td class="text-center nowrap">{$campus[$vo->campus]['name']}</td>
-            <td class="text-center nowrap">{$vo->bed_total}</td>
+            <td class='text-center'>{$vo['name']}</td>
+            <td class="text-center nowrap">{$campus[$vo['campus']]['name']}</td>
+            <td class='text-center nowrap'>{$beds_config[$vo['bed_total']]['text']}</td>
+            <td class="text-center nowrap">{$vo['price']}</td>
+            <td class="text-center nowrap">{$vo['bed_total']}</td>
             <td class="text-center nowrap"></td>
             <td class="text-center nowrap"></td>
-            <td class='text-center nowrap'>{$beds_config[$vo->bed_total]['text']}</td>
-            <td class='text-center nowrap'>{$vo->roomAdder->username}</td>
+            <td class='text-center nowrap'>{$vo['roomAdder']['username']}</td>
             <td class='text-center nowrap'>
-                {if($vo->status == 1)}
+                {if($vo['status'] == 1)}
                 <span style="color:#5FB878">正常</span>
                 {else /}
                 <span style="color:#FF5722">禁用</span>
                 {/if}</td>
             <td class='text-center nowrap'>
                 {if auth("admin/rooms/view")}
-                <span class="text-explode">|</span>
-                <a class="layui-btn layui-btn-sm" data-open='{:url("admin/rooms/view")}?id={$vo.id}'>查看</a>
+                <a class="layui-btn layui-btn-sm layui-btn-normal" data-open='{:url("admin/rooms/view")}?id={$vo.id}'>查看</a>
                 {/if}
 
                 {if auth("admin/root/edit")}
-                <span class="text-explode">|</span>
                 <a class="layui-btn layui-btn-sm" data-open='{:url("admin/rooms/edit")}?id={$vo.id}'>编 辑</a>
                 {/if}
 
@@ -79,5 +114,13 @@
         </tbody>
     </table>
     {/empty}
+
+    {notempty name='list'}{$pagehtml|raw|default=''}{/notempty}
 </div>
+{/block}
+
+{block name="script"}
+<script>
+    form.render();
+</script>
 {/block}

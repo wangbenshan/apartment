@@ -1,0 +1,132 @@
+{block name="content"}
+<form id="roomForm" autocomplete="off" class="layui-form layui-card" enctype="multipart/form-data">
+    <div class="layui-card-body padding-left-40">
+        <div class="layui-form-item layui-row layui-col-space15">
+            <div class="layui-col-xs12">
+                <input type="file" accept=".xls,.xlsx"id="import_excel" />
+            </div>
+            <div class="layui-col-xs12">
+                <div class="color-red"><i class="fa fa-warning"></i>未避免数据重复，请勿重复导入！！</div>
+            </div>
+        </div>
+        <div class="layui-form-item text-center">
+            <button class="layui-btn layui-btn-danger" type="button" data-confirm="确定要取消修改吗？" data-close="">取消修改</button>
+            <button class="layui-btn" type="button" id="upload_excel">上传数据</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+<script>
+    form.render();
+
+    var excelData = [];
+
+    require(['xlsx'], function (xlsx) {
+        $('#import_excel').change(function(event){
+            let file = event.target.files[0];
+            if(!file) return;
+            let file_split = file.name.split('.');
+            let type = file_split[file_split.length - 1];
+            if (type !== 'xlsx' && type !== 'xls') {
+                $.msg.error('只能选择excel文件导入');
+                return false;
+            }
+            const reader = new FileReader();
+            reader.readAsBinaryString(file);
+            reader.onload = function(e) {
+                const data = e.target.result;
+                const zzexcel = XLSX.read(data, {type: 'binary'});
+                for (let i = 0; i < zzexcel.SheetNames.length; i++) {
+                    const newData = XLSX.utils.sheet_to_json(zzexcel.Sheets[zzexcel.SheetNames[i]]);
+                    excelData.push(...newData)
+                }
+            }
+        });
+    });
+
+    function initData(){
+        console.log(excelData)
+        let data = [];
+        for(let i in excelData){
+            let item = excelData[i], order = {};
+            order.room_name= item['房间_1'];
+            order.room_type= item['房间'];
+            order.stu_name= item['姓名'];
+            order.sex= item['性别'] == '男' ? 0 : 1;
+            order.stu_phone= item['联系方式'];
+            order.school= item['学校'];
+            order.project= item['项目'];
+            order.campus= item['校区'];
+            order.lease_term= item['租期'];
+            if(!!item['入住时间']) order.book_in_time = formatDate(item['入住时间']);
+            if(!!item['到期时间']) order.departure_time = formatDate(item['到期时间']);
+            order.front_money= item['定金'];
+            order.rest_money= item['应交尾款'];
+            order.actual_rest_money= item['实交尾款'];
+            order.deposit= item['押金'];
+            order.total_money= item['总费用'];
+            order.public_water_rate= item['公共区域水电费'];
+            order.power_rate_cycle= item['电费周期'];
+            switch (item['状态']) {
+                case '已预订':
+                    order.status = 10;break;
+                case '已入住':
+                case '已入住':
+                    order.status = 20;break;
+                case '已退房':
+                    order.status = 30;break;
+                default:
+                    order.status = 0;break;
+            }
+            order.comment= item['备注'];
+            order.salesman= item['业务员'];
+
+            data.push(order);
+        }
+        return data;
+    }
+
+
+    function formatDate(numb, format="-") {
+        if(isNaN(numb)) return numb;
+        let time = new Date((numb - 1) * 24 * 3600000 + 1)
+        time.setYear(time.getFullYear() - 70)
+        let year = time.getFullYear() + ''
+        let month = time.getMonth() + 1 + ''
+        let date = time.getDate() - 1 + ''
+        if (format && format.length === 1) {
+            return year + format + month + format + date
+        }
+        return year + (month < 10 ? '0' + month : month) + (date < 10 ? '0' + date : date)
+    }
+
+    $('#upload_excel').click(function(){
+        if(excelData.length == 0){
+            $.msg.error('请选择要上传的文件！');
+            return false;
+        }
+        let data = initData(excelData);
+        $.ajax({
+            url: "{:request()->url()}",
+            type: 'post',
+            dataType: 'json',
+            data: {data: data},
+            headers: {"User-Token-Csrf": $("input[name=_token_]").val()},
+            success: function(res){
+                if(res.code == 1){
+                    $.msg.success(res.info, 2, function(){
+                        layer.closeAll();
+                        history.go(0);
+                    });
+                }else{
+                    $.msg.error(res.info);
+                }
+            }, error: function(err){
+                $.msg.error('请求失败，请重试！');
+            }
+        });
+    })
+</script>
+{block name='script'}
+{/block}

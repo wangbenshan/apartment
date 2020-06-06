@@ -1,0 +1,66 @@
+{extend name='admin@main'}
+
+{block name="content"}
+<form id="roomForm" autocomplete="off" class="layui-form layui-card">
+    <div class="layui-card-body think-box-shadow padding-left-40">
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs3">
+                <span class="color-green">房间号</span>
+                <input name="name" value='{$vo->name}' readonly class="layui-input">
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">所属校区</span>
+                <input name="name" value='{$campus->name}' readonly class="layui-input">
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">房间规格</span>
+                <input name="name" value='{$bed_total_text}' readonly class="layui-input">
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">房间价格（¥）</span>
+                <input name="price" value='{$vo->price}' readonly class="layui-input">
+            </label>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <div class="layui-col-xs12">
+                <span class="color-green">房间照片</span>
+                <div>
+                    <?php $pictures = explode('|', $vo->pictures); ?>
+                    {foreach $pictures as $pic)}
+                    <div class="uploadimage uploadimagemtl" data-tips-image="{$pic}" style="background-image:url('{$pic}');"></div>
+                    {/foreach}
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <div class="layui-col-xs12">
+                <span class="color-green">房间设施</span>
+                <div>
+                    {if($vo->facilities->has_wifi == 1)}
+                    <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>无线-WIFI</span><i class="layui-icon layui-icon-ok"></i></div>
+                    {/if}
+                    {if($vo->facilities->has_toilet == 1)}
+                    <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>独立卫生间</span><i class="layui-icon layui-icon-ok"></i></div>
+                    {/if}
+                    {if($vo->facilities->has_window == 1)}
+                    <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>窗户</span><i class="layui-icon layui-icon-ok"></i></div>
+                    {/if}
+                    {if($vo->facilities->has_drink == 1)}
+                    <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>饮水设施</span><i class="layui-icon layui-icon-ok"></i></div>
+                    {/if}
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item text-center">
+            <button class="layui-btn layui-btn-danger" type="button" onclick="history.go(-1)">返 回</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name='script'}
+<script>
+    form.render();
+</script>
+{/block}

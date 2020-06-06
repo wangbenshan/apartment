@@ -1,0 +1,94 @@
+{extend name='main'}
+
+{block name="button"}
+
+{if auth("import")}
+<button data-modal='{:url("import")}' data-title="导入订单" class='layui-btn layui-btn-sm layui-btn-primary'>导入订单</button>
+{/if}
+
+{if auth("add")}
+<button data-open='{:url("add")}' data-title="立即下单" class='layui-btn layui-btn-sm layui-btn-primary'>立即下单</button>
+{/if}
+
+{if auth("reserve")}
+<button data-open='{:url("reserve")}' data-title="预定房间" class='layui-btn layui-btn-sm layui-btn-primary'>预定房间</button>
+{/if}
+
+{/block}
+
+{block name="content"}
+<div class="think-box-shadow">
+    {empty name='list'}
+    <blockquote class="layui-elem-quote">没 有 记 录 哦！</blockquote>
+    {else}
+    <table class="layui-table margin-top-10" lay-skin="line">
+        <thead>
+        <tr>
+            <th class='list-table-check-td think-checkbox'>
+                <label><input data-auto-none data-check-target='.list-check-box' type='checkbox'></label>
+            </th>
+            <th class='text-center nowrap'>房间 / 规格 / 校区</th>
+            <th class="text-center nowrap">姓名</th>
+            <th class="text-center nowrap">性别</th>
+            <th class="text-center nowrap">租期</th>
+            <th class="text-center nowrap">入住时间 ~ 到期时间</th>
+            <th class="text-center nowrap">定金</th>
+            <th class="text-center nowrap">押金</th>
+            <th class="text-center nowrap">订单总额</th>
+            <th class="text-center nowrap">订单状态</th>
+            <th class="text-center nowrap">订单创建时间</th>
+            <th class="text-center nowrap">业务员</th>
+            <th class="text-center nowrap">备注</th>
+            <th class="text-center nowrap"></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $list as $key=>$vo}
+        <tr>
+            <td class='list-table-check-td think-checkbox'>
+                <label><input class="list-check-box" value='{$vo.id}' type='checkbox'></label>
+            </td>
+            <td class='text-center'>{if $vo.room_name == '' || $vo.room_name == '未安排'}<span class="color-red">未安排</span>{else /}{$vo.room_name}{/if} / {$vo.room_type} / {$vo.campus}</td>
+            <td class='text-center'>{$vo.stu_name}</td>
+            <td class='text-center'>{$vo.sex == 1 ? '女' : '男'}</td>
+            <td class='text-center'>{$vo.lease_term}</td>
+            <td class='text-center'>{$vo.book_in_time} ~ {$vo.departure_time}</td>
+            <td class='text-center'>{$vo.front_money}</td>
+            <td class='text-center'>{$vo.deposit}</td>
+            <td class='text-center'>{$vo.total_money}</td>
+            <td class='text-center nowrap'>
+                {switch $vo.status}
+                {case 0}已取消{/case}
+                {case 10}已预订{/case}
+                {case 20}已入住{/case}
+                {case 30}已退房{/case}
+                {default /}未知
+                {/switch}
+            </td>
+            <td class='text-center'>{$vo.add_time}</td>
+            <td class='text-center'>{$vo.salesman}</td>
+            <td class='text-center'>{$vo.comment}</td>
+            <td class='text-center nowrap'>
+                {if auth("admin/orders/view")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("admin/orders/view")}?id={$vo.id}'>查 看</a>
+                {/if}
+                {if auth("admin/orders/edit")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-xs" data-open='{:url("admin/orders/edit")}?id={$vo.id}'>编 辑</a>
+                {/if}
+                {if $vo.status == 10 && auth("admin/orders/handleReserve")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-xs layui-btn-normal" data-modal='{:url("admin/orders/handleReserve")}?id={$vo.id}'>处理预定</a>
+                {/if}
+            </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+    {/empty}
+
+    {notempty name='list'}{$pagehtml|raw|default=''}{/notempty}
+</div>
+{/block}

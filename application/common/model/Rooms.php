@@ -12,12 +12,6 @@ class Rooms extends Model
 
     protected $json = ['facilities'];
 
-    // 房间的床位
-    public function beds()
-    {
-        return $this->hasMany(Beds::class, 'room_id', 'id');
-    }
-
     // 房间的添加者
     public function roomAdder()
     {

@@ -5,6 +5,7 @@ namespace app\admin\controller;
 use app\Common\Service\RoomService;
 use library\Controller;
 use app\common\model\Rooms as RoomsModel;
+use think\Db;
 
 class Rooms extends Controller
 {
@@ -24,15 +25,14 @@ class Rooms extends Controller
         if($this->request->isGet()){
             $this->title = '房间列表';
             // 获取房间规格
-            $this->assign('beds_config', array_column(RoomService::getBedConfig(), null, 'num'));
-
+            $this->assign('beds_config', array_column(RoomService::getRoomType(), null, 'num'));
             // 获取校区
             $this->assign('campus', RoomService::getCampus()->column(null, 'id'));
 
             // 获取列表
-            $this->assign('list', (new RoomService())->getRooms());
-
-            $this->fetch();
+            $query_obj = RoomsModel::with(['roomAdder']);
+            $this->_query($query_obj)->order('add_time desc,id desc')
+                ->equal('campus,bed_total')->like('name')->page();
         }
     }
 
@@ -42,7 +42,7 @@ class Rooms extends Controller
             $this->applyCsrfToken();
             $this->title = '添加房间';
             $this->assign('campus', RoomService::getCampus());
-            $this->assign('beds', RoomService::getBedConfig());
+            $this->assign('beds', RoomService::getRoomType());
             $this->fetch('form');
         }else{
             $token_check = $this->applyCsrfToken(true);
@@ -64,7 +64,7 @@ class Rooms extends Controller
             $this->applyCsrfToken();
             $this->title = '添加房间';
             $this->assign('campus', RoomService::getCampus());
-            $this->assign('beds', RoomService::getBedConfig());
+            $this->assign('beds', RoomService::getRoomType());
 
             // 获取room 数据
             $room_id = $this->request->get('id');
@@ -95,7 +95,7 @@ class Rooms extends Controller
             $this->assign('vo', $room);
 
             $this->assign('campus', RoomService::getCampus($room->campus));
-            $this->assign('bed_total_text', RoomService::getBedConfig($room->bed_total));
+            $this->assign('bed_total_text', RoomService::getRoomType($room->bed_total));
 
             $this->fetch();
         }
@@ -117,5 +117,25 @@ class Rooms extends Controller
     {
         $this->applyCsrfToken();
         $this->_delete($this->table);
+    }
+
+    // 根据校区获取可入住房间
+    public function getAvailableRoomsByCampus()
+    {
+        if($this->request->isPost()){
+            $data = $this->request->post();
+            $where_str = 'r.`status` = 1';
+            if(!empty($data['campus'])) $where_str .= ' AND r.campus = '.$data['campus'];
+            if(!empty($data['type'])) $where_str .= ' AND r.bed_total = '.$data['type'];
+            $sql = 'SELECT rr.*,oo.o_count from ap_rooms as rr
+                        LEFT JOIN (
+                            SELECT r.id as room_id,count(o.id) o_count from ap_rooms as r
+                            LEFT JOIN (SELECT id,room_id from ap_orders WHERE `status` in (10,20) ) as o on r.id = o.room_id
+                            WHERE '.$where_str.' GROUP BY r.id
+                        ) as oo on rr.id = oo.room_id WHERE rr.bed_total > oo.o_count';
+
+            $rooms = Db::query($sql);
+            return json($rooms);
+        }
     }
 }

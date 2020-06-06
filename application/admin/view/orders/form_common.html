@@ -1,0 +1,99 @@
+<div class="layui-row layui-col-space15">
+    <h4 class="font-w8 font-s16 color-blue">房间基本信息</h4>
+</div>
+<div class="layui-form-item layui-row layui-col-space15">
+    <label class="layui-col-xs3">
+        <span class="color-green">校区</span>
+        <select name="campus_id" lay-filter="campus_id" required class="layui-input">
+            <option value="">请选择校区</option>
+            {foreach $campus as $val}
+            <option value="{$val->id}">{$val->name}</option>
+            {/foreach}
+        </select>
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">房间规格</span>
+        <select name="room_type_num" lay-filter="room_type_num" required class="layui-input">
+            <option value="">请选择房间规格</option>
+            {foreach $type as $val}
+            <option value="{$val['num']}">{$val['text']}</option>
+            {/foreach}
+        </select>
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">房间号</span>
+        <select name="room_id"  lay-filter="room_id" {if request()->action() != 'reserve'}required{/if} class="layui-input input_ctrl">
+            <option value="">请选择房间</option>
+        </select>
+    </label>
+</div>
+<div class="layui-row layui-col-space15">
+    <h4 class="font-w8 font-s16 color-blue">学生基本信息</h4>
+</div>
+<div class="layui-form-item layui-row layui-col-space15">
+    <label class="layui-col-xs3">
+        <span class="color-green">姓名</span>
+        <input name="stu_name" value='{$vo->stu_name|default=""}' required class="layui-input" placeholder="请输入学生姓名" />
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">性别</span>
+        <select name="sex" required class="layui-input">
+            <option value="">请选择性别</option>
+            <option value="0" {if (isset($vo->sex) && $vo->stu_name == '0')}selected{/if}>男</option>
+            <option value="1" {if (isset($vo->sex) && $vo->stu_name == '1')}selected{/if}>女</option>
+        </select>
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">联系方式</span>
+        <input name="stu_phone" value='{$vo->stu_phone|default=""}' maxlength="11" class="layui-input" required placeholder="请输入学生的联系方式" />
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">身份证号</span>
+        <input name="stu_id_num" value='{$vo->stu_id_num|default=""}' maxlength="18" class="layui-input" required placeholder="请输入身份证号" />
+    </label>
+</div>
+<div class="layui-form-item layui-row layui-col-space15">
+    <label class="layui-col-xs3">
+        <span class="color-green">项目</span>
+        <input name="project" value='{$vo->project|default=""}' class="layui-input" placeholder="请输入学生参与项目" />
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">毕业院校</span>
+        <input name="school" value='{$vo->school|default=""}' class="layui-input" placeholder="请输入学生的毕业学校" />
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">报考院校</span>
+        <input name="application" value='{$vo->application|default=""}' class="layui-input" placeholder="请输入学生的报考院校" />
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">籍贯</span>
+        <input name="native_place" value='{$vo->native_place|default=""}' class="layui-input" placeholder="请输入学生的籍贯" />
+    </label>
+</div>
+<div class="layui-row layui-col-space15">
+    <h4 class="font-w8 font-s16 color-blue">订单信息</h4>
+</div>
+<div class="layui-form-item layui-row layui-col-space15">
+    <label class="layui-col-xs3">
+        <span class="color-green">租期</span>
+        <input type="text" class="layui-input" name="lease_term" value="{$vo->lease_term|default=''}" required placeholder="请输入租期" />
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">入住时间</span>
+        <input type="text" class="layui-input" name="book_in_time" value="{$vo->book_in_time|default=''}" required readonly placeholder="请选择入住时间" />
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">离店时间</span>
+        <input type="text" class="layui-input" name="departure_time" value="{$vo->departure_time|default=''}" required readonly placeholder="请选择离店时间" />
+    </label>
+</div>
+<div class="layui-form-item layui-row layui-col-space15">
+    <label class="layui-col-xs3">
+        <span class="color-green">公共区域水电费（¥）</span>
+        <input type="number" name="public_water_rate" value='{$vo->public_water_rate|default=""}' class="layui-input" placeholder="请输入公共区域水电费" />
+    </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">电费周期</span>
+        <input name="power_rate_cycle" value='{$vo->power_rate_cycle|default=""}' class="layui-input" placeholder="请输入电费周期" />
+    </label>
+</div>

@@ -16,7 +16,7 @@ class RoomService extends CommonService
     }
 
     // 获取房间床位设置
-    public static function getBedConfig($num = null)
+    public static function getRoomType($num = null)
     {
         if($num){
             switch ($num){
@@ -49,7 +49,8 @@ class RoomService extends CommonService
             $room_data = [
                 'name'          =>  $data['name'],
                 'campus'        =>  $data['campus'],
-                'bed_total'     =>  $data['bed_total']
+                'bed_total'     =>  $data['bed_total'],
+                'price'         =>  $data['price']
             ];
 
             if($data['upload_pic']){
@@ -96,7 +97,8 @@ class RoomService extends CommonService
             $room_data = [
                 'name'          =>  $data['name'],
                 'campus'        =>  $data['campus'],
-                'bed_total'     =>  $data['bed_total']
+                'bed_total'     =>  $data['bed_total'],
+                'price'         =>  $data['price']
             ];
 
             if($data['upload_pic']){
@@ -127,16 +129,4 @@ class RoomService extends CommonService
             return ['status' => -1., 'msg' => $e->getMessage()];
         }
     }
-
-    // 获取room列表
-    public function getRooms()
-    {
-        $rooms = Rooms::with([
-            'roomAdder' => function($query){
-                $query->field('id, username');
-            }
-        ])->select();
-        return $rooms;
-    }
-
 }

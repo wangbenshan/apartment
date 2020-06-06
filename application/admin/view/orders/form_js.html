@@ -1,0 +1,48 @@
+<script>
+    form.on('select(campus_id)', function(){
+        getRoomList();
+    });
+    form.on('select(room_type_num)', function(){
+        getRoomList();
+    });
+
+    function getRoomList(){
+        let campus = $('[name=campus_id]').val(),
+            type = $('[name=room_type_num]').val();
+        $.ajax({
+            url: "{:url('admin/rooms/getAvailableRoomsByCampus')}",
+            type: 'post',
+            dataType: 'json',
+            data: {campus, type},
+            success: function(res){
+                let room = '<option value="">请选择房间</option>';
+                if(res.length != 0){
+                    for(let i in res){
+                        room += '<option value="'+ res[i]['id'] +'">'+ res[i]['name'] +'     <span class="margin-left-10">('+ res[i]['o_count'] +'/'+ res[i]['bed_total'] +')</span></option>';
+                    }
+                }
+                $('[name=room_id]').html(room);
+                form.render();
+            }, error: function(err){
+                $.msg.error('请求失败，请重试！');
+            }
+        });
+    }
+
+    // 取消编辑
+    $('#cancel_edit').click(function(){
+        $.msg.confirm('确定要取消编辑吗？', function(index){
+            history.go(-1);
+            layer.close(index);
+        })
+    });
+
+    const date_base_config = {
+        min: "{:date('Y-m-d H:i:s', time())}",
+        btns: ['clear', 'confirm']
+    };
+
+    // 起始时间/截止时间 选择面板渲染
+    laydate.render($.extend(date_base_config, {elem: '[name=book_in_time]'}));
+    laydate.render($.extend(date_base_config, {elem: '[name=departure_time]'}));
+</script>
