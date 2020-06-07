@@ -2,14 +2,15 @@
 
 namespace app\admin\controller;
 
+use library\Controller;
 use app\admin\validate\OrdersValidate;
 use app\common\service\RoomService;
-use library\Controller;
 use app\common\model\Orders as OrdersModel;
 use app\common\model\Rooms;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use think\Db;
+use think\Exception;
 
 class Orders extends Controller
 {
@@ -30,8 +31,9 @@ class Orders extends Controller
             // 房间规格列表
             $this->assign('beds_config', RoomService::getRoomType());
 
-            $query = $this->_query($this->table);
-            $query->order('add_time desc,id desc')
+            $this->_query($this->table)
+                ->where('status', '<>', 40)
+                ->order('add_time desc,id desc')
                 ->equal('campus_id#campus,room_type_num#room_type,status')
                 ->like('room_name,stu_name,stu_phone')->page();
         }
@@ -363,6 +365,110 @@ class Orders extends Controller
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save('php://output');
+        }
+    }
+
+
+    // 调换房间
+    public function change()
+    {
+        $this->applyCsrfToken();
+        $id = $this->request->param('id');
+        // 获取当前订单信息
+        $order = OrdersModel::get($id);
+        if($order->isEmpty()) $this->error('未发现当前存在订单，操作失败！');
+        if($order->status != 10 && $order->status != 20) $this->error('当前为非预定和入住情况，不能调换房间');
+
+        if($this->request->isGet()){
+            $this->title = '调换房间';
+
+            $this->assign('campus', RoomService::getCampus());
+            $this->assign('type', RoomService::getRoomType());
+            // 获取当前校区和房间规格下的可租房间
+            $this->assign('av_rooms', (new RoomService())->getAvailableRoomsByCampus($order->campus_id, $order->room_type_num));
+
+            $this->assign('vo', $order);
+            $this->fetch();
+        }else{
+            // 检查必填字段
+            $data = $this->request->only(['id', 'campus_id', 'room_type_num', 'room_id', 'lease_term', 'book_in_time', 'departure_time', 'total_money']);
+            $validate = new OrdersValidate();
+            if(!$validate->scene('changeRoom')->check($data)){
+                $this->error($validate->getError());
+            }
+
+            // 调换房间
+            Db::startTrans();
+            try {
+                if($data['room_id'] == $order->room_id) throw new Exception('这个房间不想住了，那就换个房间吧~');
+
+                // 保存原有订单状态，以便转移到新订单
+                $order_status = $order->status;
+
+                // 废除原有订单
+                $order->status = 40;
+                $res = $order->save();
+                if($res == 0) throw new Exception('操作失败，请重试！');
+
+                // 获取房间信息
+                $room = Rooms::get($data['room_id']);
+                if($room->isEmpty()) throw new Exception('房间不存在！');
+                if($room->id == $order->room_id) throw new Exception('这个房间不想住了，那就换个房间吧~');
+
+                // 是否还有空床位
+                $count = OrdersModel::where([
+                    ['status', 'in', [10, 20]],
+                    ['room_id', '=', $room->id],
+                    ['id', '<>', $order->id]
+                ])->count();
+                if($count >= $room->bed_total) throw new Exception('选择的房间已满员了');
+
+                // 移植数据，添加新订单
+                $new = [
+                    'room_id'           =>  $data['room_id'],
+                    'room_name'         =>  $room->name,
+                    'room_type_num'     =>  $room->bed_total,
+                    'room_type'         =>  RoomService::getRoomType($room->bed_total),
+                    'campus_id'         =>  $room->campus,
+                    'campus'            =>  (RoomService::getCampus($room->campus))->name,
+                    'stu_name'          =>  $order->stu_name,
+                    'stu_id_num'        =>  $order->stu_id_num,
+                    'sex'               =>  $order->sex,
+                    'stu_phone'         =>  $order->stu_phone,
+                    'native_place'      =>  $order->native_place,
+                    'school'            =>  $order->school,
+                    'application'       =>  $order->application,
+                    'project'           =>  $order->project,
+                    'lease_term'        =>  $data['lease_term'] ? $data['lease_term'] : $order->lease_term,
+                    'book_in_time'      =>  $data['book_in_time'],
+                    'departure_time'    =>  $data['departure_time'],
+                    'add_time'          =>  date('Y-m-d H:i:s'),
+                    'pay_time'          =>  date('Y-m-d H:i:s'),
+                    'front_money'       =>  $order->front_money,
+                    'rest_money'        =>  $order->rest_money,
+                    'actual_rest_money' =>  $order->actual_rest_money,
+                    'deposit'           =>  $order->deposit,
+                    'deposit_status'    =>  $order->deposit_status,
+                    'total_money'       =>  $data['total_money'],
+                    'public_water_rate' =>  $order->public_water_rate,
+                    'power_rate_cycle'  =>  $order->power_rate_cycle,
+                    'pay_money'         =>  $data['total_money'],
+                    'status'            =>  $order_status,
+                    'comment'           =>  $order->comment,
+                    'salesman_id'       =>  session('user.id'),
+                    'salesman'          =>  session('user.username'),
+                    'change_from'       =>  $order->id,
+                    'diff_money'        =>  $data['total_money'] - $order->pay_money
+                ];
+                $new_order = OrdersModel::create($new);
+                if ($new_order->isEmpty()) throw new Exception('创建新订单失败，请重试！');
+
+                Db::commit();
+                $this->success('调换新房间成功！', url('@admin/orders/index'));
+            }catch (Exception $exception){
+                Db::rollback();
+                $this->error($exception->getMessage());
+            }
         }
     }
 }

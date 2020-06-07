@@ -29,8 +29,14 @@ class Rooms extends Controller
             // 获取校区
             $this->assign('campus', RoomService::getCampus()->column(null, 'id'));
 
-            // 获取列表
-            $query_obj = RoomsModel::with(['roomAdder']);
+            $sub_query = Db::name('orders')->group('room_id')
+                ->fieldRaw('room_id, COUNT(*) AS total,
+                SUM(IF (`status` = 10, 1, 0) ) AS reserved, 
+                SUM(IF (`status` = 20, 1, 0 ) ) as book_in')->buildSql();
+
+            $query_obj = RoomsModel::with(['roomAdder'])->alias('r')
+                ->leftJoin([$sub_query => 'o'], 'r.id = o.room_id')
+                ->field('r.*, o.reserved, o.book_in, total');
             $this->_query($query_obj)->order('add_time desc,id desc')
                 ->equal('campus,bed_total')->like('name')->page();
         }
@@ -104,6 +110,7 @@ class Rooms extends Controller
     public function forbid()
     {
         $this->applyCsrfToken();
+        if(!$this->checkIsEmpty($this->request->param('id'))) $this->error('此房间已被预定或入住，不能删除！');
         $this->_save($this->table, ['status' => '0']);
     }
 
@@ -116,7 +123,17 @@ class Rooms extends Controller
     public function remove()
     {
         $this->applyCsrfToken();
+        if(!$this->checkIsEmpty($this->request->param('id'))) $this->error('此房间已被预定或入住，不能删除！');
         $this->_delete($this->table);
+    }
+
+    private function checkIsEmpty($id)
+    {
+        $orders = \app\common\model\Orders::where([
+            ['status', 'in', [10, 20]],
+            ['room_id', '=', $id]
+        ])->select();
+        return $orders->isEmpty();
     }
 
     // 根据校区获取可入住房间
@@ -128,6 +145,27 @@ class Rooms extends Controller
             $room_type = empty($data['type']) ? '' : $data['type'];
             $rooms = (new RoomService())->getAvailableRoomsByCampus($campus_id, $room_type);
             return json($rooms);
+        }
+    }
+
+    // 获取学生列表
+    public function viewStuList()
+    {
+        if($this->request->isGet()){
+            $status = $this->request->get('status');
+            $id = $this->request->get('id');
+            $str = '';
+            if($status == 10) $str = '预定';
+            if($status == 20) $str = '入住';
+            $this->title = '查看'.($str).'学生列表';
+
+            $list = \app\common\model\Orders::where([
+                ['room_id', '=', $id],
+                ['status', '=', $status]
+            ])->field('id, stu_name, stu_phone, native_place, stu_id_num, school, application,
+             book_in_time, departure_time, campus, room_name')->select();
+            $this->assign('list', $list);
+            $this->fetch();
         }
     }
 }

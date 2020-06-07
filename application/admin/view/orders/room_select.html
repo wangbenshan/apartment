@@ -23,7 +23,7 @@
             <option value="">请选择房间</option>
             {notempty name="av_rooms"}
             {foreach $av_rooms as $room}
-            <option value="{$room['id']}">{$room['name']}     <span class="margin-left-10">({$room['o_count']}/{$room['bed_total']})</span></option>
+            <option value="{$room['id']}" {if isset($vo->room_id) && $vo->room_id == $room['id']}selected{/if}>{$room['name']}     <span class="margin-left-10">({$room['o_count']}/{$room['bed_total']})</span></option>
             {/foreach}
             {/notempty}
         </select>

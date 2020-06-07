@@ -1,0 +1,52 @@
+{extend name='admin@main'}
+
+{block name="content"}
+<div class="layui-card-body think-box-shadow padding-left-40">
+    <table class="layui-table margin-top-10" lay-skin="line">
+        <thead>
+        <tr>
+            <th class='text-center nowrap'>序号</th>
+            <th class='text-center nowrap'>姓名</th>
+            <th class='text-center nowrap'>身份证</th>
+            <th class="text-center nowrap">籍贯</th>
+            <th class='text-center nowrap'>联系方式</th>
+            <th class='text-center nowrap'>毕业院校</th>
+            <th class='text-center nowrap'>报考学校</th>
+            <th class='text-center nowrap'>入住时间</th>
+            <th class='text-center nowrap'>离店时间</th>
+            <th class="text-center nowrap">校区</th>
+            <th class="text-center nowrap">房间</th>
+            <th class="text-center nowrap">床位</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $list as $key=>$vo}
+        <tr>
+            <td class='text-center'>{$key + 1}</td>
+            <td class='text-center'>{$vo['stu_name']}</td>
+            <td class='text-center'>{$vo['stu_id_num']}</td>
+            <td class='text-center'>{$vo['native_place']}</td>
+            <td class='text-center'>{$vo['stu_phone']}</td>
+            <td class='text-center'>{$vo['school']}</td>
+            <td class='text-center'>{$vo['application']}</td>
+            <td class='text-center'>{$vo['book_in_time']}</td>
+            <td class='text-center'>{$vo['departure_time']}</td>
+            <td class='text-center'>{$vo['campus']}</td>
+            <td class='text-center'>{$vo['room_name']}</td>
+            <td class='text-center'></td>
+            <td class='text-center nowrap'>
+                {if auth("admin/orders/change")}
+                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("admin/orders/change")}?id={$vo.id}'>调 换</a>
+                {/if}
+            </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+
+    <div class="layui-form-item text-center margin-top-40 layui-clear">
+        <button class="layui-btn layui-btn-danger" type="button" onclick="history.go(-1)">返 回</button>
+    </div>
+</div>
+{/block}

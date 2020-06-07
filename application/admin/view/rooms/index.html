@@ -64,6 +64,7 @@
             <th class="text-center nowrap">房间规格</th>
             <th class='text-center nowrap'>床位价格（¥）</th>
             <th class='text-center nowrap'>床位总数</th>
+            <th class='text-center nowrap'>剩余床位</th>
             <th class='text-center nowrap'>入住人数</th>
             <th class='text-center nowrap'>预定未住</th>
             <th class="text-center nowrap">添加者</th>
@@ -82,8 +83,17 @@
             <td class='text-center nowrap'>{$beds_config[$vo['bed_total']]['text']}</td>
             <td class="text-center nowrap">{$vo['price']}</td>
             <td class="text-center nowrap">{$vo['bed_total']}</td>
-            <td class="text-center nowrap"></td>
-            <td class="text-center nowrap"></td>
+            <td class="text-center nowrap">{$vo['bed_total'] - $vo['book_in'] - $vo['reserved']}</td>
+            <td class="text-center nowrap">
+                {if $vo['book_in'] == 0}0
+                {else /}<a class="layui-inline full-width full-height" title="点击查看入住学生列表" data-open="{:url('viewStuList')}?id={$vo['id']}&status=20">{$vo['book_in']}</a>
+                {/if}
+            </td>
+            <td class="text-center nowrap">
+                {if $vo['reserved'] == 0}0
+                {else /}<a class="layui-inline full-width full-height" title="点击查看预定学生列表" data-open="{:url('viewStuList')}?id={$vo['id']}&status=10">{$vo['reserved']}</a>
+                {/if}
+            </td>
             <td class='text-center nowrap'>{$vo['roomAdder']['username']}</td>
             <td class='text-center nowrap'>
                 {if($vo['status'] == 1)}
@@ -93,20 +103,20 @@
                 {/if}</td>
             <td class='text-center nowrap'>
                 {if auth("admin/rooms/view")}
-                <a class="layui-btn layui-btn-sm layui-btn-normal" data-open='{:url("admin/rooms/view")}?id={$vo.id}'>查看</a>
+                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("admin/rooms/view")}?id={$vo.id}'>查看</a>
                 {/if}
 
                 {if auth("admin/root/edit")}
-                <a class="layui-btn layui-btn-sm" data-open='{:url("admin/rooms/edit")}?id={$vo.id}'>编 辑</a>
+                <a class="layui-btn layui-btn-xs" data-open='{:url("admin/rooms/edit")}?id={$vo.id}'>编 辑</a>
                 {/if}
 
                 {if $vo.status eq 1 and auth("admin/rooms/forbid")}
-                <a class="layui-btn layui-btn-warm layui-btn-sm" data-action="{:url('forbid')}" data-value="id#{$vo.id};status#0" data-csrf="{:systoken('admin/rooms/forbid')}">禁 用</a>
+                <a class="layui-btn layui-btn-warm layui-btn-xs" data-action="{:url('forbid')}" data-value="id#{$vo.id};status#0" data-csrf="{:systoken('admin/rooms/forbid')}">禁 用</a>
                 {elseif $vo.status eq 0 and auth("admin/rooms/resume")}
-                <a class="layui-btn layui-btn-warm layui-btn-sm" data-action="{:url('resume')}" data-value="id#{$vo.id};status#1" data-csrf="{:systoken('admin/rooms/resume')}">启 用</a>
+                <a class="layui-btn layui-btn-warm layui-btn-xs" data-action="{:url('resume')}" data-value="id#{$vo.id};status#1" data-csrf="{:systoken('admin/rooms/resume')}">启 用</a>
                 {/if}
                 {if auth("admin/rooms/remove")}
-                <a class="layui-btn layui-btn-danger layui-btn-sm" data-confirm="确定要删除数据吗?" data-action="{:url('remove')}" data-value="id#{$vo.id}" data-csrf="{:systoken('admin/rooms/remove')}">删 除</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" data-confirm="确定要删除数据吗?" data-action="{:url('remove')}" data-value="id#{$vo.id}" data-csrf="{:systoken('admin/rooms/remove')}">删 除</a>
                 {/if}
             </td>
         </tr>

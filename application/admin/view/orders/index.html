@@ -114,7 +114,7 @@
             <td class='text-center'>{$vo.stu_phone}</td>
             <td class='text-center'>{$vo.sex == 1 ? '女' : '男'}</td>
             <td class='text-center'>{$vo.lease_term}</td>
-            <td class='text-center'>{$vo.book_in_time} ~ {$vo.departure_time}</td>
+            <td class='text-center'>{$vo.book_in_time}<div> ~ </div>{$vo.departure_time}</td>
             <td class='text-center'>{$vo.front_money}</td>
             <td class='text-center'>{$vo.deposit}</td>
             <td class='text-center'>{$vo.total_money}</td>
@@ -137,6 +137,10 @@
                 {if $vo.status == 10 && auth("admin/orders/handleReserve")}
                 <span class="text-explode">|</span>
                 <a class="layui-btn layui-btn-xs layui-btn-warm" data-modal='{:url("admin/orders/handleReserve")}?id={$vo.id}'>处理预定</a>
+                {/if}
+                {if ($vo.status == 10 || $vo.status == 20) && auth("admin/orders/change")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-xs" data-open='{:url("admin/orders/change")}?id={$vo.id}'>调换房间</a>
                 {/if}
             </td>
         </tr>

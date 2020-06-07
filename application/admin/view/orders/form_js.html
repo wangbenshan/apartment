@@ -1,6 +1,6 @@
 <script>
     // 取消编辑
-    $('#cancel_edit').click(function(){
+    $('body').on('click', '#cancel_edit', function(){
         $.msg.confirm('确定要取消编辑吗？', function(index){
             history.go(-1);
             layer.close(index);

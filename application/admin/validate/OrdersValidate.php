@@ -82,4 +82,9 @@ class OrdersValidate extends Validate
     {
         return $this->only(['deposit', 'actual_rest_money']);
     }
+
+    public function sceneChangeRoom()
+    {
+        return $this->only(['campus_id', 'room_type_num', 'room_id', 'book_in_time', 'departure_time', 'total_money']);
+    }
 }
