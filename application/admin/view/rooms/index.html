@@ -23,7 +23,7 @@
                     <select name="campus">
                         <option value="">全部</option>
                         {foreach $campus as $val}
-                        <option value="{$val['id']}" {$Think.get.campus == $val['id'] ? 'selected' : ''}>{$val['name']}</option>
+                        <option value="{$val->id}" {if $Think.get.campus == $val->id}selected{/if}>{$val->name}</option>
                         {/foreach}
                     </select>
                 </div>
@@ -34,7 +34,7 @@
                     <select name="type">
                         <option value="">全部</option>
                         {foreach $beds_config as $val}
-                        <option value="{$val['num']}" {$Think.get.campus == $val['num'] ? 'selected' : ''}>{$val['text']}</option>
+                        <option value="{$val['num']}" {if ($Think.get.type == $val['num'])}selected{/if}>{$val['text']}</option>
                         {/foreach}
                     </select>
                 </div>

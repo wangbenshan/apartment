@@ -7,10 +7,8 @@ use app\common\service\RoomService;
 use library\Controller;
 use app\common\model\Orders as OrdersModel;
 use app\common\model\Rooms;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use think\Db;
 
 class Orders extends Controller
@@ -26,8 +24,16 @@ class Orders extends Controller
     {
         if($this->request->isGet()){
             $this->title = '订单列表';
+
+            // 校区列表
+            $this->assign('campus', RoomService::getCampus());
+            // 房间规格列表
+            $this->assign('beds_config', RoomService::getRoomType());
+
             $query = $this->_query($this->table);
-            $query->order('add_time desc,id desc')->page();
+            $query->order('add_time desc,id desc')
+                ->equal('campus_id#campus,room_type_num#room_type,status')
+                ->like('room_name,stu_name,stu_phone')->page();
         }
     }
 

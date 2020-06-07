@@ -130,7 +130,6 @@ class RoomService extends CommonService
         }
     }
 
-    //
     public function getAvailableRoomsByCampus($campus_id = '', $room_type = '')
     {
         $where_str = 'r.`status` = 1';
