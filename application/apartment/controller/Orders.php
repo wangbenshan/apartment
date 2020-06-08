@@ -1,9 +1,9 @@
 <?php
 
-namespace app\admin\controller;
+namespace app\apartment\controller;
 
 use library\Controller;
-use app\admin\validate\OrdersValidate;
+use app\apartment\validate\OrdersValidate;
 use app\common\service\RoomService;
 use app\common\model\Orders as OrdersModel;
 use app\common\model\Rooms;
@@ -15,7 +15,7 @@ use think\Exception;
 /**
  * 订单管理
  * Class Orders
- * @package app\admin\controller
+ * @package app\apartment\controller
  */
 class Orders extends Controller
 {
@@ -360,7 +360,7 @@ class Orders extends Controller
                 if ($new_order->isEmpty()) throw new Exception('创建新订单失败，请重试！');
 
                 Db::commit();
-                $this->success('调换新房间成功！', url('@admin/orders/index'));
+                $this->success('调换新房间成功！', url('@apartment/orders/index'));
             }catch (Exception $exception){
                 Db::rollback();
                 $this->error($exception->getMessage());

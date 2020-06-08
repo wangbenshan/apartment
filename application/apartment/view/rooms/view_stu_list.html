@@ -36,8 +36,8 @@
             <td class='text-center'>{$vo['room_name']}</td>
             <td class='text-center'></td>
             <td class='text-center nowrap'>
-                {if auth("admin/orders/change")}
-                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("admin/orders/change")}?id={$vo.id}'>调 换</a>
+                {if auth("apartment/orders/change")}
+                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("apartment/orders/change")}?id={$vo.id}'>调 换</a>
                 {/if}
             </td>
         </tr>

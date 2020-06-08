@@ -36,18 +36,10 @@
             <div class="layui-col-xs12">
                 <span class="color-green">房间设施</span>
                 <div>
-                    {if($vo->facilities->has_wifi == 1)}
-                    <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>无线-WIFI</span><i class="layui-icon layui-icon-ok"></i></div>
-                    {/if}
-                    {if($vo->facilities->has_toilet == 1)}
-                    <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>独立卫生间</span><i class="layui-icon layui-icon-ok"></i></div>
-                    {/if}
-                    {if($vo->facilities->has_window == 1)}
-                    <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>窗户</span><i class="layui-icon layui-icon-ok"></i></div>
-                    {/if}
-                    {if($vo->facilities->has_drink == 1)}
-                    <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>饮水设施</span><i class="layui-icon layui-icon-ok"></i></div>
-                    {/if}
+                    {php}$facilities = explode('#', $vo->facilities);{/php}
+                    {foreach $facilities as $val}
+                    <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>{$val}</span><i class="layui-icon layui-icon-ok"></i></div>
+                    {/foreach}
                 </div>
             </div>
         </div>

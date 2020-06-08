@@ -1,6 +1,6 @@
 <?php
 
-namespace app\admin\controller;
+namespace app\apartment\controller;
 
 use app\Common\Service\RoomService;
 use library\Controller;
@@ -10,7 +10,7 @@ use think\Db;
 /**
  * 房间管理
  * Class Rooms
- * @package app\admin\controller
+ * @package app\apartment\controller
  */
 class Rooms extends Controller
 {

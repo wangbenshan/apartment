@@ -28,7 +28,7 @@
             </label>
             <label class="layui-col-xs3 relative">
                 <span class="color-green">房间价格（¥）</span>
-                <input name="price" value='{$vo->price|default=""}' lay-verify="required" required placeholder="请输入房间价格" class="layui-input input_ctrl">
+                <input type="number" name="price" value='{$vo->price|default=""}' lay-verify="required" required placeholder="请输入房间价格" class="layui-input input_ctrl">
             </label>
         </div>
         <div class="layui-form-item layui-row layui-col-space15">
@@ -46,13 +46,8 @@
         </div>
         <div class="layui-form-item layui-row layui-col-space15">
             <div class="layui-col-xs12 relative">
-                <span class="color-green label-required-prev">房间设施</span>
-                <div>
-                    <input type="checkbox" name="has_wifi" title="无线-WIFI" {if(isset($vo) && $vo->facilities->has_wifi == 1)}checked{/if} />
-                    <input type="checkbox" name="has_toilet" title="独立卫生间" {if(isset($vo) && $vo->facilities->has_toilet == 1)}checked{/if} />
-                    <input type="checkbox" name="has_window" title="窗户" {if(isset($vo) && $vo->facilities->has_window == 1)}checked{/if} />
-                    <input type="checkbox" name="has_drink" title="饮水设施" {if(isset($vo) && $vo->facilities->has_drink == 1)}checked{/if} />
-                </div>
+                <span class="color-green">房间设施<i class="color-red">（多项请用“#”隔开）</i></span>
+                <input type="text" name="facilities" value='{$vo->facilities|default=""}' placeholder="请输入房间设施" class="layui-input input_ctrl">
             </div>
         </div>
 
@@ -90,10 +85,6 @@
             return false;
         }
 
-        $('[name^=has_]').each(function(i, n){
-            data[$(n).prop('name')] = $(n).prop('checked') ? '1' : '0';
-        })
-
         /*{notempty name='vo.id'}*/
         data['id'] = $('[name=room_id]').val();
         /*{/notempty}*/
@@ -107,7 +98,7 @@
             success: function(res){
                 if(res.code == 1){
                     $.msg.success(res.info, 2, function(){
-                        $.form.href("{:url('admin/rooms/index')}");
+                        $.form.href("{:url('apartment/rooms/index')}");
                     });
                 }else{
                     $.msg.error(res.info);

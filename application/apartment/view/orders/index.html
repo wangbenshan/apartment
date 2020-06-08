@@ -129,17 +129,17 @@
             <td class='text-center'>{$vo.add_time}</td>
             <td class='text-center'>{$vo.salesman}</td>
             <td class='text-left nowrap'>
-                {if auth("admin/orders/view")}
+                {if auth("apartment/orders/view")}
                 <span class="text-explode">|</span>
-                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("admin/orders/view")}?id={$vo.id}'>查 看</a>
+                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("apartment/orders/view")}?id={$vo.id}'>查 看</a>
                 {/if}
-                {if $vo.status == 10 && auth("admin/orders/handleReserve")}
+                {if $vo.status == 10 && auth("apartment/orders/handleReserve")}
                 <span class="text-explode">|</span>
-                <a class="layui-btn layui-btn-xs layui-btn-warm" data-modal='{:url("admin/orders/handleReserve")}?id={$vo.id}'>处理预定</a>
+                <a class="layui-btn layui-btn-xs layui-btn-warm" data-modal='{:url("apartment/orders/handleReserve")}?id={$vo.id}'>处理预定</a>
                 {/if}
-                {if ($vo.status == 10 || $vo.status == 20) && auth("admin/orders/change")}
+                {if ($vo.status == 10 || $vo.status == 20) && auth("apartment/orders/change")}
                 <span class="text-explode">|</span>
-                <a class="layui-btn layui-btn-xs" data-open='{:url("admin/orders/change")}?id={$vo.id}'>调换房间</a>
+                <a class="layui-btn layui-btn-xs" data-open='{:url("apartment/orders/change")}?id={$vo.id}'>调换房间</a>
                 {/if}
             </td>
         </tr>

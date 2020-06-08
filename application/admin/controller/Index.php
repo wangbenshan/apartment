@@ -56,7 +56,7 @@ class Index extends Controller
     public function main()
     {
         // 房间总量
-        $this->room_count = Db::name('rooms')->where('status', 1)->count();
+        $this->room_count = Db::name('apartment')->where('status', 1)->count();
         // 当前已预订数量
         $this->reserved_count = Db::name('orders')->where('status', 10)->count();
         // 当前已入住数量

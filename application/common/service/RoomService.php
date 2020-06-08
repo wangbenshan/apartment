@@ -57,24 +57,16 @@ class RoomService extends CommonService
                 'name'          =>  $data['name'],
                 'campus'        =>  $data['campus'],
                 'bed_total'     =>  $data['bed_total'],
-                'price'         =>  $data['price']
+                'price'         =>  $data['price'],
+                'facilities'    =>  $data['facilities'],
+                'adder'         =>  session('user.id'),
+                'add_time'      =>  date('Y-m-d H:i:s'),
             ];
 
             if($data['upload_pic']){
                 if(count(explode('|', $data['upload_pic'])) > 5) throw new Exception('最多上传5张图片！');
                 $room_data['pictures'] = $data['upload_pic'];
             }
-
-            $room_data['facilities'] = json_encode([
-                'has_wifi'      => $data['has_wifi'] ? 1 : 0,
-                'has_toilet'    => $data['has_toilet'] ? 1 : 0,
-                'has_window'    => $data['has_window'] ? 1 : 0,
-                'has_drink'     => $data['has_drink'] ? 1 : 0
-            ]);
-
-            $room_data['adder'] = session('user.id');
-
-            $room_data['add_time'] = date('Y-m-d H:i:s');
 
             // 添加数据
             $room = Rooms::create($room_data);
@@ -105,7 +97,9 @@ class RoomService extends CommonService
                 'name'          =>  $data['name'],
                 'campus'        =>  $data['campus'],
                 'bed_total'     =>  $data['bed_total'],
-                'price'         =>  $data['price']
+                'price'         =>  $data['price'],
+                'facilities'    =>  $data['facilities'],
+                'adder'         =>  session('user.id')
             ];
 
             if($data['upload_pic']){
@@ -113,18 +107,10 @@ class RoomService extends CommonService
                 $room_data['pictures'] = $data['upload_pic'];
             }
 
-            $room_data['facilities'] = json_encode([
-                'has_wifi'      => $data['has_wifi'] === '1' ? 1 : 0,
-                'has_toilet'    => $data['has_toilet'] === '1' ? 1 : 0,
-                'has_window'    => $data['has_window'] === '1' ? 1 : 0,
-                'has_drink'     => $data['has_drink'] === '1' ? 1 : 0
-            ]);
-
-            $room_data['adder'] = session('user.id');
             $room_data['id'] = $data['id'];
 
             // 修改房间数据
-            $res = Db::name('rooms')->update($room_data);
+            $res = Db::name('apartment')->update($room_data);
             if($res == 0) throw new Exception('未作修改！');
 
             $this->commit();

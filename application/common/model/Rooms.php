@@ -10,8 +10,6 @@ class Rooms extends Model
 
     protected $pk = 'id';
 
-    protected $json = ['facilities'];
-
     // 房间的添加者
     public function roomAdder()
     {

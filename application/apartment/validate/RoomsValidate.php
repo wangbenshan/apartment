@@ -1,6 +1,6 @@
 <?php
 
-namespace app\admin\validate;
+namespace app\apartment\validate;
 
 use think\Validate;
 

@@ -104,24 +104,24 @@
                 <span style="color:#FF5722">禁用</span>
                 {/if}</td>
             <td class='text-left nowrap'>
-                {if auth("admin/rooms/view")}
-                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("admin/rooms/view")}?id={$vo.id}'>查看</a>
+                {if auth("apartment/rooms/view")}
+                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("apartment/rooms/view")}?id={$vo.id}'>查看</a>
                 {/if}
 
-                {if auth("admin/root/edit")}
-                <a class="layui-btn layui-btn-xs" data-open='{:url("admin/rooms/edit")}?id={$vo.id}'>编 辑</a>
+                {if auth("apartment/rooms/edit")}
+                <a class="layui-btn layui-btn-xs" data-open='{:url("apartment/rooms/edit")}?id={$vo.id}'>编 辑</a>
                 {/if}
 
-                {if $vo.status eq 0 and auth("admin/rooms/resume")}
-                <a class="layui-btn layui-btn-warm layui-btn-xs" data-action="{:url('resume')}" data-value="id#{$vo.id};status#1" data-csrf="{:systoken('admin/rooms/resume')}">启 用</a>
+                {if $vo.status eq 0 and auth("apartment/rooms/resume")}
+                <a class="layui-btn layui-btn-warm layui-btn-xs" data-action="{:url('resume')}" data-value="id#{$vo.id};status#1" data-csrf="{:systoken('apartment/rooms/resume')}">启 用</a>
                 {/if}
 
                 {if ($vo['book_in'] + $vo['reserved']) == 0}
-                    {if $vo.status eq 1 and auth("admin/rooms/forbid")}
-                    <a class="layui-btn layui-btn-warm layui-btn-xs" data-action="{:url('forbid')}" data-value="id#{$vo.id};status#0" data-csrf="{:systoken('admin/rooms/forbid')}">禁 用</a>
+                    {if $vo.status eq 1 and auth("apartment/rooms/forbid")}
+                    <a class="layui-btn layui-btn-warm layui-btn-xs" data-action="{:url('forbid')}" data-value="id#{$vo.id};status#0" data-csrf="{:systoken('apartment/rooms/forbid')}">禁 用</a>
                     {/if}
-                    {if auth("admin/rooms/remove")}
-                    <a class="layui-btn layui-btn-danger layui-btn-xs" data-confirm="确定要删除数据吗?" data-action="{:url('remove')}" data-value="id#{$vo.id}" data-csrf="{:systoken('admin/rooms/remove')}">删 除</a>
+                    {if auth("apartment/rooms/remove")}
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" data-confirm="确定要删除数据吗?" data-action="{:url('remove')}" data-value="id#{$vo.id}" data-csrf="{:systoken('apartment/rooms/remove')}">删 除</a>
                     {/if}
                 {/if}
             </td>

@@ -42,7 +42,7 @@
         let campus = $('[name=campus_id]').val(),
             type = $('[name=room_type_num]').val();
         $.ajax({
-            url: "{:url('admin/rooms/getAvailableRoomsByCampus')}",
+            url: "{:url('apartment/rooms/getAvailableRoomsByCampus')}",
             type: 'post',
             dataType: 'json',
             data: {campus, type},
