@@ -46,6 +46,13 @@ class RoomService extends CommonService
                 throw new Exception($validate->getError());
             }
 
+            // 检查是否已设置
+            $count = Rooms::where([
+                ['campus', '=', $data['campus']],
+                ['name', '=', $data['name']]
+            ])->findOrEmpty();
+            if(!$count->isEmpty()) throw new Exception('该校区的这个房间名已被占用');
+
             $room_data = [
                 'name'          =>  $data['name'],
                 'campus'        =>  $data['campus'],

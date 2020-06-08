@@ -7,6 +7,11 @@ use library\Controller;
 use app\common\model\Rooms as RoomsModel;
 use think\Db;
 
+/**
+ * 房间管理
+ * Class Rooms
+ * @package app\admin\controller
+ */
 class Rooms extends Controller
 {
     /**
@@ -16,9 +21,8 @@ class Rooms extends Controller
     public $table = 'Rooms';
 
     /**
-     * 显示房间列表
-     *
-     * @return \think\Response
+     * 房间列表
+     * @auth true
      */
     public function index()
     {
@@ -42,6 +46,30 @@ class Rooms extends Controller
         }
     }
 
+    /**
+     * 查看房间详情
+     * @auth true
+     */
+    public function view()
+    {
+        if($this->request->isGet()){
+            $this->title = '查看房间';
+
+            $room_id = $this->request->get('id');
+            $room = RoomsModel::get($room_id);
+            $this->assign('vo', $room);
+
+            $this->assign('campus', RoomService::getCampus($room->campus));
+            $this->assign('bed_total_text', RoomService::getRoomType($room->bed_total));
+
+            $this->fetch();
+        }
+    }
+
+    /**
+     * 添加房间
+     * @auth true
+     */
     public function add()
     {
         if($this->request->isGet()) {
@@ -63,7 +91,10 @@ class Rooms extends Controller
         }
     }
 
-    // 编辑
+    /**
+     * 编辑房间
+     * @auth true
+     */
     public function edit()
     {
         if($this->request->isGet()) {
@@ -91,22 +122,10 @@ class Rooms extends Controller
         }
     }
 
-    public function view()
-    {
-        if($this->request->isGet()){
-            $this->title = '查看房间';
-
-            $room_id = $this->request->get('id');
-            $room = RoomsModel::get($room_id);
-            $this->assign('vo', $room);
-
-            $this->assign('campus', RoomService::getCampus($room->campus));
-            $this->assign('bed_total_text', RoomService::getRoomType($room->bed_total));
-
-            $this->fetch();
-        }
-    }
-
+    /**
+     * 禁用房间
+     * @auth true
+     */
     public function forbid()
     {
         $this->applyCsrfToken();
@@ -114,12 +133,20 @@ class Rooms extends Controller
         $this->_save($this->table, ['status' => '0']);
     }
 
+    /**
+     * 启用房间
+     * @auth true
+     */
     public function resume()
     {
         $this->applyCsrfToken();
         $this->_save($this->table, ['status' => '1']);
     }
 
+    /**
+     * 删除房间
+     * @auth true
+     */
     public function remove()
     {
         $this->applyCsrfToken();
@@ -127,6 +154,9 @@ class Rooms extends Controller
         $this->_delete($this->table);
     }
 
+    /**
+     * 检查房间是否有空床位
+     */
     private function checkIsEmpty($id)
     {
         $orders = \app\common\model\Orders::where([
@@ -136,7 +166,9 @@ class Rooms extends Controller
         return $orders->isEmpty();
     }
 
-    // 根据校区获取可入住房间
+    /**
+     * 根据校区获取可入住房间
+     */
     public function getAvailableRoomsByCampus()
     {
         if($this->request->isPost()){
@@ -148,7 +180,10 @@ class Rooms extends Controller
         }
     }
 
-    // 获取学生列表
+    /**
+     * 查看房间内学生列表
+     * @auth true
+     */
     public function viewStuList()
     {
         if($this->request->isGet()){

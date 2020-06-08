@@ -12,6 +12,11 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use think\Db;
 use think\Exception;
 
+/**
+ * 订单管理
+ * Class Orders
+ * @package app\admin\controller
+ */
 class Orders extends Controller
 {
     /**
@@ -20,7 +25,10 @@ class Orders extends Controller
      */
     public $table = 'Orders';
 
-    // 列表
+    /**
+     * 订单列表
+     * @auth true
+     */
     public function index()
     {
         if($this->request->isGet()){
@@ -39,7 +47,10 @@ class Orders extends Controller
         }
     }
 
-    // 列表
+    /**
+     * 查看订单详情
+     * @auth true
+     */
     public function view()
     {
         if($this->request->isGet()){
@@ -50,47 +61,10 @@ class Orders extends Controller
         }
     }
 
-    // 导入学生excel
-    public function import()
-    {
-        if($this->request->isGet()){
-            $this->applyCsrfToken();
-            $this->title = '导入学生';
-
-            $this->fetch('import');
-        }else{
-            $this->applyCsrfToken();
-
-            $data = $this->request->post('data');
-            if(empty($data)){
-                $this->error('导入的数据为空，请导入Excel文件后上传！');
-            }
-            foreach($data as &$val){
-                $val['add_time'] = date('Y-m-d H:i:s');
-                // 没有押金
-                if(!isset($val['deposit']) || $val['deposit'] <= 0){
-                    $val['deposit_status'] = 0;
-                }elseif(isset($val['status'])){
-                    // 已退房，押金已退
-                    if($val['status'] == 30){
-                        $val['deposit_status'] = 2;
-                    }else{
-                        // 未退押金
-                        $val['deposit_status'] = 1;
-                    }
-                }
-            }
-            // 导入学生信息
-            $res = (new OrdersModel)->saveAll($data);
-            if($res->isEmpty()){
-                $this->error('导入失败，请重试');
-            }else{
-                $this->success('导入成功！');
-            }
-        }
-    }
-
-    // 立即下单
+    /**
+     * 安排房间
+     * @auth true
+     */
     public function add()
     {
         if($this->request->isGet()){
@@ -144,11 +118,14 @@ class Orders extends Controller
 
             $res = OrdersModel::create($data);
             if($res->isEmpty()) $this->error('创建订单失败，请重试！');
-            $this->success('预定房间成功！');
+            $this->success('下单成功，顾客可以入住房间啦！');
         }
     }
 
-    // 预定房间
+    /**
+     * 预定房间
+     * @auth true
+     */
     public function reserve()
     {
         if($this->request->isGet()){
@@ -208,7 +185,10 @@ class Orders extends Controller
         }
     }
 
-    // 处理预定
+    /**
+     * 房间预定处理
+     * @auth true
+     */
     public function handleReserve()
     {
         $this->applyCsrfToken();
@@ -282,94 +262,10 @@ class Orders extends Controller
         }
     }
 
-    // 导出excel
-    public function export()
-    {
-        if($this->request->isGet()){
-            // 获取订单列表
-            $orders = OrdersModel::select();
-            if($orders->isEmpty()) $this->error('暂无订单，导出失败！');
-
-            $spreadsheet = new Spreadsheet();
-            $sheet = $spreadsheet->getActiveSheet();
-
-            // 设置默认样式
-            $sheet->getDefaultRowDimension()->setRowHeight(15.6);
-            $sheet->getDefaultColumnDimension()->setWidth(10);
-
-            //设置标题行内容
-            $sheet->setCellValueByColumnAndRow(1, 1, '姓名');
-            $sheet->setCellValueByColumnAndRow(2, 1, '联系方式');
-            $sheet->setCellValueByColumnAndRow(3, 1, '性别');
-            $sheet->setCellValueByColumnAndRow(4, 1, '学校');
-            $sheet->setCellValueByColumnAndRow(5, 1, '项目');
-            $sheet->setCellValueByColumnAndRow(6, 1, '房间');
-            $sheet->setCellValueByColumnAndRow(7, 1, '租期');
-            $sheet->setCellValueByColumnAndRow(8, 1, '入住时间');
-            $sheet->setCellValueByColumnAndRow(9, 1, '到期时间');
-            $sheet->setCellValueByColumnAndRow(10, 1, '定金');
-            $sheet->setCellValueByColumnAndRow(11, 1, '应交尾款');
-            $sheet->setCellValueByColumnAndRow(12, 1, '实交尾款');
-            $sheet->setCellValueByColumnAndRow(13, 1, '押金');
-            $sheet->setCellValueByColumnAndRow(14, 1, '总费用');
-            $sheet->setCellValueByColumnAndRow(15, 1, '公共区域水电费');
-            $sheet->setCellValueByColumnAndRow(16, 1, '电费周期');
-            $sheet->setCellValueByColumnAndRow(17, 1, '校区');
-            $sheet->setCellValueByColumnAndRow(18, 1, '房间');
-            $sheet->setCellValueByColumnAndRow(19, 1, '状态');
-            $sheet->setCellValueByColumnAndRow(20, 1, '备注');
-            $sheet->setCellValueByColumnAndRow(21, 1, '业务员');
-
-            foreach ($orders as $k => $v){
-                $row = $k + 2;
-                // 设置内容
-                $sheet->setCellValueByColumnAndRow(1, $row, $v->stu_name);
-                $sheet->setCellValueByColumnAndRow(2, $row, $v->stu_phone);
-                $sheet->setCellValueByColumnAndRow(3, $row, $v->sex == 1 ? '女' : '男');
-                $sheet->setCellValueByColumnAndRow(4, $row, $v->school);
-                $sheet->setCellValueByColumnAndRow(5, $row, $v->project);
-                $sheet->setCellValueByColumnAndRow(6, $row, $v->room_name);
-                $sheet->setCellValueByColumnAndRow(7, $row, $v->lease_term);
-                $sheet->setCellValueByColumnAndRow(8, $row, $v->book_in_time);
-                $sheet->setCellValueByColumnAndRow(9, $row, $v->departure_time);
-                $sheet->setCellValueByColumnAndRow(10, $row, $v->front_money);
-                $sheet->setCellValueByColumnAndRow(11, $row, $v->rest_money);
-                $sheet->setCellValueByColumnAndRow(12, $row, $v->actual_rest_money);
-                $sheet->setCellValueByColumnAndRow(13, $row, $v->deposit);
-                $sheet->setCellValueByColumnAndRow(14, $row, $v->total_money);
-                $sheet->setCellValueByColumnAndRow(15, $row, $v->public_water_rate);
-                $sheet->setCellValueByColumnAndRow(16, $row, $v->power_rate_cycle);
-                $sheet->setCellValueByColumnAndRow(17, $row, $v->campus);
-                $sheet->setCellValueByColumnAndRow(18, $row, $v->room_type);
-                switch($v->status){
-                    case 0: $status = '已取消';break;
-                    case 10: $status = '已预定';break;
-                    case 20: $status = '已入住';break;
-                    case 30: $status = '已退房';break;
-                    default: $status = '未知';
-                }
-                $sheet->setCellValueByColumnAndRow(19, $row, $status);
-                $sheet->setCellValueByColumnAndRow(20, $row, $v->comment);
-                $sheet->setCellValueByColumnAndRow(21, $row, $v->salesman);
-            }
-
-            $count = count($orders);
-            $sheet->getStyle('A1:U'.($count + 1))->getFont()->setName('宋体')->setSize(12);
-            $sheet->getStyle('A1:U'.($count + 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('A1:U1')->getFont()->setBold(true);
-
-            $filename = '订单列表_'.date('YmdHis').'xlsx';
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename="'.$filename.'"');
-            header('Cache-Control: max-age=0');
-
-            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
-            $writer->save('php://output');
-        }
-    }
-
-
-    // 调换房间
+    /**
+     * 调换房间
+     * @auth true
+     */
     public function change()
     {
         $this->applyCsrfToken();
@@ -469,6 +365,138 @@ class Orders extends Controller
                 Db::rollback();
                 $this->error($exception->getMessage());
             }
+        }
+    }
+
+    /**
+     * 导入学生Excel
+     * @auth true
+     */
+    public function import()
+    {
+        if($this->request->isGet()){
+            $this->applyCsrfToken();
+            $this->title = '导入学生';
+
+            $this->fetch('import');
+        }else{
+            $this->applyCsrfToken();
+
+            $data = $this->request->post('data');
+            if(empty($data)){
+                $this->error('导入的数据为空，请导入Excel文件后上传！');
+            }
+            foreach($data as &$val){
+                $val['add_time'] = date('Y-m-d H:i:s');
+                // 没有押金
+                if(!isset($val['deposit']) || $val['deposit'] <= 0){
+                    $val['deposit_status'] = 0;
+                }elseif(isset($val['status'])){
+                    // 已退房，押金已退
+                    if($val['status'] == 30){
+                        $val['deposit_status'] = 2;
+                    }else{
+                        // 未退押金
+                        $val['deposit_status'] = 1;
+                    }
+                }
+            }
+            // 导入学生信息
+            $res = (new OrdersModel)->saveAll($data);
+            if($res->isEmpty()){
+                $this->error('导入失败，请重试');
+            }else{
+                $this->success('导入成功！');
+            }
+        }
+    }
+
+    /**
+     * 导出学生excel
+     * @auth true
+     */
+    public function export()
+    {
+        if($this->request->isGet()){
+            // 获取订单列表
+            $orders = OrdersModel::select();
+            if($orders->isEmpty()) $this->error('暂无订单，导出失败！');
+
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // 设置默认样式
+            $sheet->getDefaultRowDimension()->setRowHeight(15.6);
+            $sheet->getDefaultColumnDimension()->setWidth(10);
+
+            //设置标题行内容
+            $sheet->setCellValueByColumnAndRow(1, 1, '姓名');
+            $sheet->setCellValueByColumnAndRow(2, 1, '联系方式');
+            $sheet->setCellValueByColumnAndRow(3, 1, '性别');
+            $sheet->setCellValueByColumnAndRow(4, 1, '学校');
+            $sheet->setCellValueByColumnAndRow(5, 1, '项目');
+            $sheet->setCellValueByColumnAndRow(6, 1, '房间');
+            $sheet->setCellValueByColumnAndRow(7, 1, '租期');
+            $sheet->setCellValueByColumnAndRow(8, 1, '入住时间');
+            $sheet->setCellValueByColumnAndRow(9, 1, '到期时间');
+            $sheet->setCellValueByColumnAndRow(10, 1, '定金');
+            $sheet->setCellValueByColumnAndRow(11, 1, '应交尾款');
+            $sheet->setCellValueByColumnAndRow(12, 1, '实交尾款');
+            $sheet->setCellValueByColumnAndRow(13, 1, '押金');
+            $sheet->setCellValueByColumnAndRow(14, 1, '总费用');
+            $sheet->setCellValueByColumnAndRow(15, 1, '公共区域水电费');
+            $sheet->setCellValueByColumnAndRow(16, 1, '电费周期');
+            $sheet->setCellValueByColumnAndRow(17, 1, '校区');
+            $sheet->setCellValueByColumnAndRow(18, 1, '房间');
+            $sheet->setCellValueByColumnAndRow(19, 1, '状态');
+            $sheet->setCellValueByColumnAndRow(20, 1, '备注');
+            $sheet->setCellValueByColumnAndRow(21, 1, '业务员');
+
+            foreach ($orders as $k => $v){
+                $row = $k + 2;
+                // 设置内容
+                $sheet->setCellValueByColumnAndRow(1, $row, $v->stu_name);
+                $sheet->setCellValueByColumnAndRow(2, $row, $v->stu_phone);
+                $sheet->setCellValueByColumnAndRow(3, $row, $v->sex == 1 ? '女' : '男');
+                $sheet->setCellValueByColumnAndRow(4, $row, $v->school);
+                $sheet->setCellValueByColumnAndRow(5, $row, $v->project);
+                $sheet->setCellValueByColumnAndRow(6, $row, $v->room_name);
+                $sheet->setCellValueByColumnAndRow(7, $row, $v->lease_term);
+                $sheet->setCellValueByColumnAndRow(8, $row, $v->book_in_time);
+                $sheet->setCellValueByColumnAndRow(9, $row, $v->departure_time);
+                $sheet->setCellValueByColumnAndRow(10, $row, $v->front_money);
+                $sheet->setCellValueByColumnAndRow(11, $row, $v->rest_money);
+                $sheet->setCellValueByColumnAndRow(12, $row, $v->actual_rest_money);
+                $sheet->setCellValueByColumnAndRow(13, $row, $v->deposit);
+                $sheet->setCellValueByColumnAndRow(14, $row, $v->total_money);
+                $sheet->setCellValueByColumnAndRow(15, $row, $v->public_water_rate);
+                $sheet->setCellValueByColumnAndRow(16, $row, $v->power_rate_cycle);
+                $sheet->setCellValueByColumnAndRow(17, $row, $v->campus);
+                $sheet->setCellValueByColumnAndRow(18, $row, $v->room_type);
+                switch($v->status){
+                    case 0: $status = '已取消';break;
+                    case 10: $status = '已预定';break;
+                    case 20: $status = '已入住';break;
+                    case 30: $status = '已退房';break;
+                    default: $status = '未知';
+                }
+                $sheet->setCellValueByColumnAndRow(19, $row, $status);
+                $sheet->setCellValueByColumnAndRow(20, $row, $v->comment);
+                $sheet->setCellValueByColumnAndRow(21, $row, $v->salesman);
+            }
+
+            $count = count($orders);
+            $sheet->getStyle('A1:U'.($count + 1))->getFont()->setName('宋体')->setSize(12);
+            $sheet->getStyle('A1:U'.($count + 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A1:U1')->getFont()->setBold(true);
+
+            $filename = '订单列表_'.date('YmdHis').'xlsx';
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="'.$filename.'"');
+            header('Cache-Control: max-age=0');
+
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save('php://output');
         }
     }
 }
