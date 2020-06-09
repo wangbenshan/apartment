@@ -5,8 +5,14 @@
             <div class="layui-col-xs12">
                 <input type="file" accept=".xls,.xlsx"id="import_excel" />
             </div>
-            <div class="layui-col-xs12">
-                <div class="color-red"><i class="fa fa-warning"></i>未避免数据重复，请勿重复导入！！</div>
+            <div class="layui-col-xs12 color-red">
+                <div><i class="fa fa-warning margin-right-5"></i>导入前请注意：</div>
+                <div class="layui-form-text">
+                    <p>1. 未避免数据重复，请勿重复导入文件！</p>
+                    <p>2. 请确认校区名称和校区管理中的保持一致，否则会导入出错！</p>
+                    <p>3. 请确认房间规格符合书写方式：“四人间”或“4人间”，否则会导入出错！</p>
+                    <p>4. 请确认房间名称和房间管理中的保持一致，若未安排可不填或者填写“未安排”，否则会导入出错！</p>
+                </div>
             </div>
         </div>
         <div class="layui-form-item text-center">
@@ -46,10 +52,27 @@
     });
 
     function initData(){
-        console.log(excelData)
         let data = [];
         for(let i in excelData){
             let item = excelData[i], order = {};
+            switch (item['状态']) {
+                case '已取消':
+                    order.status = 0;break;
+                case '已预订':
+                    order.status = 10;break;
+                case '已入住':
+                    order.status = 20;break;
+                case '已退房':
+                    order.status = 30;break;
+                case '已换房':
+                    order.status = 40;break;
+                default:
+                    order.status = -1;break;
+            }
+            if(order.status === -1){
+                $.msg.error('订单状态错误，请检查！');
+                return false;
+            }
             order.room_name= item['房间_1'];
             order.room_type= item['房间'];
             order.stu_name= item['姓名'];
@@ -68,20 +91,10 @@
             order.total_money= item['总费用'];
             order.public_water_rate= item['公共区域水电费'];
             order.power_rate_cycle= item['电费周期'];
-            switch (item['状态']) {
-                case '已预订':
-                    order.status = 10;break;
-                case '已入住':
-                case '已入住':
-                    order.status = 20;break;
-                case '已退房':
-                    order.status = 30;break;
-                default:
-                    order.status = 0;break;
-            }
+
             order.comment= item['备注'];
             order.salesman= item['业务员'];
-
+            if(item['床位']) order.bed_num = item['床位'];
             data.push(order);
         }
         return data;

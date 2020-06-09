@@ -8,11 +8,23 @@
     });
 
     const date_base_config = {
-        min: "{:date('Y-m-d H:i:s', time())}",
+        min: "{:date('Y-m-d H:i:s')}",
         btns: ['clear', 'confirm']
     };
 
     // 起始时间/截止时间 选择面板渲染
-    laydate.render($.extend(date_base_config, {elem: '[name=book_in_time]'}));
-    laydate.render($.extend(date_base_config, {elem: '[name=departure_time]'}));
+    laydate.render($.extend(date_base_config, {elem: '[name=book_in_time]', done: function(value, date, endDate){
+        let time2 = +new Date($('[name=departure]').val());
+        if(isNaN(time2)) return false;
+        if(+new Date(value) >= time2){
+            $.msg.error('离店时间必须大于入住时间');
+        }
+    }}));
+    laydate.render($.extend(date_base_config, {elem: '[name=departure_time]', done: function(value, date, endDate){
+        let time1 = +new Date($('[name=book_in_time]').val());
+        if(isNaN(time1)) return false;
+        if(+new Date(value) <= time1){
+            $.msg.error('离店时间必须大于入住时间');
+        }
+    }}));
 </script>

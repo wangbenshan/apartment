@@ -1,7 +1,7 @@
 <?php
 namespace app\common\service;
 
-use app\admin\validate\RoomsValidate;
+use app\apartment\validate\RoomsValidate;
 use app\common\model\Campus;
 use app\common\model\Rooms;
 use think\Db;
@@ -16,25 +16,50 @@ class RoomService extends CommonService
     }
 
     // 获取房间床位设置
-    public static function getRoomType($num = null)
+    public static function getRoomType($type = null, $text = false)
     {
-        if($num){
-            switch ($num){
-                case 1:  return '一人间';
-                case 2:  return '二人间';
-                case 4:  return '四人间';
-                case 8:  return '八人间';
-                case 10: return '十人间';
-                default: return 'Error';
+        if($type){
+            if($text){
+                switch ($type){
+                    case '一人间':
+                    case '1人间':
+                        return 1;
+                    case '二人间':
+                    case '2人间':
+                        return 2;
+                    case '四人间':
+                    case '4人间':
+                        return 4;
+                    case '六人间':
+                    case '6人间':
+                        return 6;
+                    case '八人间':
+                    case '8人间':
+                        return 8;
+                    case '十人间':
+                    case '10人间':
+                        return 10;
+                }
+            }else{
+                switch ($type){
+                    case 1:  return '一人间';
+                    case 2:  return '二人间';
+                    case 4:  return '四人间';
+                    case 6:  return '六人间';
+                    case 8:  return '八人间';
+                    case 10: return '十人间';
+                }
             }
+        }else{
+            return [
+                ['num' => 1,    'text' => '一人间', 'alias' => '1人间'],
+                ['num' => 2,    'text' => '二人间', 'alias' => '2人间'],
+                ['num' => 4,    'text' => '四人间', 'alias' => '4人间'],
+                ['num' => 6,    'text' => '六人间', 'alias' => '6人间'],
+                ['num' => 8,    'text' => '八人间', 'alias' => '8人间'],
+                ['num' => 10,   'text' => '十人间', 'alias' => '10人间']
+            ];
         }
-        return [
-            ['num' => 1, 'text' => '一人间'],
-            ['num' => 2, 'text' => '二人间'],
-            ['num' => 4, 'text' => '四人间'],
-            ['num' => 8, 'text' => '八人间'],
-            ['num' => 10, 'text' => '十人间']
-        ];
     }
 
     public function addRooms($data)

@@ -155,6 +155,30 @@ class Rooms extends Controller
     }
 
     /**
+     * 查看房间内学生列表
+     * @auth true
+     */
+    public function viewStuList()
+    {
+        if($this->request->isGet()){
+            $status = $this->request->get('status');
+            $id = $this->request->get('id');
+            $str = '';
+            if($status == 10) $str = '预定';
+            if($status == 20) $str = '入住';
+            $this->title = '查看'.($str).'学生列表';
+
+            $list = \app\common\model\Orders::where([
+                ['room_id', '=', $id],
+                ['status', '=', $status]
+            ])->field('id, stu_name, stu_phone, native_place, stu_id_num, school, application,
+             book_in_time, departure_time, campus, room_name')->select();
+            $this->assign('list', $list);
+            $this->fetch();
+        }
+    }
+
+    /**
      * 检查房间是否有空床位
      */
     private function checkIsEmpty($id)
@@ -181,26 +205,15 @@ class Rooms extends Controller
     }
 
     /**
-     * 查看房间内学生列表
-     * @auth true
+     * 获取房间总床位数
      */
-    public function viewStuList()
+    public function getRoomDetails()
     {
-        if($this->request->isGet()){
-            $status = $this->request->get('status');
-            $id = $this->request->get('id');
-            $str = '';
-            if($status == 10) $str = '预定';
-            if($status == 20) $str = '入住';
-            $this->title = '查看'.($str).'学生列表';
-
-            $list = \app\common\model\Orders::where([
-                ['room_id', '=', $id],
-                ['status', '=', $status]
-            ])->field('id, stu_name, stu_phone, native_place, stu_id_num, school, application,
-             book_in_time, departure_time, campus, room_name')->select();
-            $this->assign('list', $list);
-            $this->fetch();
+        if($this->request->isPost()){
+            $room_id = $this->request->post('room_id');
+            $room = RoomsModel::get($room_id);
+            if($room->isEmpty()) $this->error('房间未设置！');
+            $this->success('获取房间详情成功！', $room);
         }
     }
 }

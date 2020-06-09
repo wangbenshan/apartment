@@ -10,6 +10,7 @@ class OrdersValidate extends Validate
         'campus_id'         =>  'require|number',
         'room_type_num'     =>  'require|number',
         'room_id'           =>  'require|number',
+        'bed_num'           =>  'require|number',
         'stu_name'          =>  'require|max:50',
         'sex'               =>  'require|number',
         'stu_phone'         =>  'require|mobile',
@@ -38,6 +39,8 @@ class OrdersValidate extends Validate
         'room_type_num.number'   =>  '请选择房间规格',
         'room_id.require'        =>  '请选择房间',
         'room_id.number'         =>  '请选择房间',
+        'bed_num.require'        =>  '请选择床位',
+        'bed_num.number'         =>  '请选择床位',
         'stu_name.require'       =>  '请输入学生姓名',
         'stu_name.max'           =>  '学生姓名最多50个字符',
         'sex.require'            =>  '请选择性别',
@@ -69,16 +72,16 @@ class OrdersValidate extends Validate
 
     public function sceneAdd()
     {
-        return $this->only(['campus_id', 'room_type_num', 'room_id', 'stu_name', 'sex', 'stu_phone',
+        return $this->only(['campus_id', 'room_type_num', 'room_id', 'bed_num', 'stu_name', 'sex', 'stu_phone',
             'stu_id_num', 'stu_id_num', 'book_in_time', 'departure_time', 'public_water_rate', 'total_money', 'deposit', 'pay_money']);
     }
 
     public function sceneHandleReserve()
     {
-        return $this->only(['campus_id', 'room_type_num', 'room_id', 'deposit', 'actual_rest_money']);
+        return $this->only(['campus_id', 'room_type_num', 'room_id', 'bed_num', 'deposit', 'actual_rest_money']);
     }
 
-    public function sceneHandleReserveForRoom()
+    public function sceneHandleReserveForBed()
     {
         return $this->only(['deposit', 'actual_rest_money']);
     }

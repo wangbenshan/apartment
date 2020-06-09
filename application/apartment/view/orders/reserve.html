@@ -36,5 +36,9 @@
 {include file='orders/form_js'}
 <script>
     form.render();
+
+    $('[name=front_money],[name=total_money]').blur(function(){
+        $('[name=rest_money]').val($('[name=total_money]').val() - $('[name=front_money]').val())
+    });
 </script>
 {/block}

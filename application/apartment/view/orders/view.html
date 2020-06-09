@@ -8,6 +8,10 @@
         </div>
         <div class="layui-form-item layui-row layui-col-space15">
             <label class="layui-col-xs3">
+                <span class="color-green">床位号</span>
+                <input name="bed_num" value='{notempty name="vo.bed_num"}{$vo->bed_num}号床{/notempty}' readonly class="layui-input">
+            </label>
+            <label class="layui-col-xs3">
                 <span class="color-green">房间号</span>
                 <input name="room_name" value='{$vo->room_name|default=""}' readonly class="layui-input">
             </label>

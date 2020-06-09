@@ -28,6 +28,17 @@
             {/notempty}
         </select>
     </label>
+    <label class="layui-col-xs3">
+        <span class="color-green">床号{if request()->action() == 'reserve'}<i class="color-red">（预定，可以不选）</i>{/if}</span>
+        <select name="bed_num"  lay-filter="bed_num" {if request()->action() != 'reserve'}required{/if} class="layui-input input_ctrl">
+            <option value="">请选择床位</option>
+            {notempty name="av_bed_total"}
+            {for start="1" end="$av_bed_total"}
+            <option value="{$i}" {if isset($vo->bed_num) && $vo->bed_num == $i}selected{/if}>{$i}号床</option>
+            {/for}
+            {/notempty}
+        </select>
+    </label>
 </div>
 
 <script>
@@ -36,6 +47,9 @@
     });
     form.on('select(room_type_num)', function(){
         getRoomList();
+    });
+    form.on('select(room_id)', function(){
+        getBedList();
     });
 
     function getRoomList(){
@@ -54,6 +68,37 @@
                     }
                 }
                 $('[name=room_id]').html(room);
+                form.render();
+            }, error: function(err){
+                $.msg.error('请求失败，请重试！');
+            }
+        });
+    }
+
+    function getBedList(){
+        let room_id = $('[name=room_id]').val();
+        if(!room_id){
+            $('[name=bed_num]').html('<option value="">请选择床位</option>');
+            form.render();
+            return false;
+        }
+        $.ajax({
+            url: "{:url('apartment/rooms/getRoomDetails')}",
+            type: 'post',
+            dataType: 'json',
+            data: {room_id},
+            success: function(res){
+                let bed = '<option value="">请选择床位</option>';
+                if(res.code == 0){
+                    $.msg.error(res.info);
+                }else{
+                    if(res.data.bed_total > 0){
+                        for(let i = 1; i <= res.data.bed_total; i++){
+                            bed += '<option value="'+ i +'">'+ i +'号床</option>';
+                        }
+                    }
+                    $('[name=bed_num]').html(bed);
+                }
                 form.render();
             }, error: function(err){
                 $.msg.error('请求失败，请重试！');

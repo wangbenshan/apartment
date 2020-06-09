@@ -21,28 +21,33 @@
                 <input name="price" value='{$vo->price}' readonly class="layui-input">
             </label>
         </div>
+        {notempty name="vo->pictures"}
+        {php}$pictures = explode('|', $vo->pictures);{/php}
         <div class="layui-form-item layui-row layui-col-space15">
             <div class="layui-col-xs12">
                 <span class="color-green">房间照片</span>
                 <div>
-                    <?php $pictures = explode('|', $vo->pictures); ?>
                     {foreach $pictures as $pic)}
                     <div class="uploadimage uploadimagemtl" data-tips-image="{$pic}" style="background-image:url('{$pic}');"></div>
                     {/foreach}
                 </div>
             </div>
         </div>
-        <div class="layui-form-item layui-row layui-col-space15">
+        {/notempty}
+
+        {notempty name="vo->facilities"}
+        {php}$facilities = explode('#', $vo->facilities);{/php}
+        <div class="layui-form-item layui-ropicturesw layui-col-space15">
             <div class="layui-col-xs12">
                 <span class="color-green">房间设施</span>
                 <div>
-                    {php}$facilities = explode('#', $vo->facilities);{/php}
                     {foreach $facilities as $val}
                     <div class="layui-unselect layui-form-checkbox layui-form-checked"><span>{$val}</span><i class="layui-icon layui-icon-ok"></i></div>
                     {/foreach}
                 </div>
             </div>
         </div>
+        {/notempty}
 
         <div class="layui-form-item text-center">
             <button class="layui-btn layui-btn-danger" type="button" onclick="history.go(-1)">返 回</button>

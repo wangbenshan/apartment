@@ -87,7 +87,7 @@
             <th class='list-table-check-td think-checkbox'>
                 <label><input data-auto-none data-check-target='.list-check-box' type='checkbox'></label>
             </th>
-            <th class='text-center nowrap'>房间 / 规格 / 校区</th>
+            <th class='text-center nowrap'>校区 / 规格 / 房间【床号】</th>
             <th class="text-center nowrap">姓名</th>
             <th class="text-center nowrap">联系方式</th>
             <th class="text-center nowrap">性别</th>
@@ -108,7 +108,10 @@
             <td class='list-table-check-td think-checkbox'>
                 <label><input class="list-check-box" value='{$vo.id}' type='checkbox'></label>
             </td>
-            <td class='text-center'>{if $vo.room_name == '' || $vo.room_name == '未安排'}<span class="color-red">未安排</span>{else /}{$vo.room_name}{/if} / {$vo.room_type} / {$vo.campus}</td>
+            <td class='text-center'>
+                {$vo.campus} / {$vo.room_type} / {if $vo.room_name == '' || $vo.room_name == '未安排'}<span class="color-red">未安排</span>
+                {else /}{$vo.room_name}【{if $vo.bed_num == 0}<span class="color-red">未安排</span>{else /}{$vo.bed_num}号床{/if}】
+                {/if}</td>
             <td class='text-center'>{$vo.stu_name}</td>
             <td class='text-center'>{$vo.stu_phone}</td>
             <td class='text-center'>{$vo.sex == 1 ? '女' : '男'}</td>
@@ -131,15 +134,19 @@
             <td class='text-left nowrap'>
                 {if auth("apartment/orders/view")}
                 <span class="text-explode">|</span>
-                <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("apartment/orders/view")}?id={$vo.id}'>查 看</a>
+                <a class="layui-btn layui-btn-xs layui-btn-primary" data-open='{:url("apartment/orders/view")}?id={$vo.id}'>查 看</a>
                 {/if}
                 {if $vo.status == 10 && auth("apartment/orders/handleReserve")}
                 <span class="text-explode">|</span>
-                <a class="layui-btn layui-btn-xs layui-btn-warm" data-modal='{:url("apartment/orders/handleReserve")}?id={$vo.id}'>处理预定</a>
+                <a class="layui-btn layui-btn-xs layui-btn-normal" data-modal='{:url("apartment/orders/handleReserve")}?id={$vo.id}'>处理预定</a>
                 {/if}
-                {if ($vo.status == 10 || $vo.status == 20) && auth("apartment/orders/change")}
+                {if ($vo.status == 10 || $vo.status == 20) && !empty($vo.room_id) && auth("apartment/orders/change")}
                 <span class="text-explode">|</span>
                 <a class="layui-btn layui-btn-xs" data-open='{:url("apartment/orders/change")}?id={$vo.id}'>调换房间</a>
+                {/if}
+                {if $vo.status == 20 && !empty($vo.room_id) && auth("apartment/orders/checkout")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-xs layui-btn-warm" data-open='{:url("apartment/orders/checkout")}?id={$vo.id}'>退 房</a>
                 {/if}
             </td>
         </tr>
