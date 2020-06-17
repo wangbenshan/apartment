@@ -1,0 +1,39 @@
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body think-box-shadow padding-left-40">
+        <div class="layui-row layui-col-space15">
+            <h4 class="font-w8 font-s16 color-blue">安排床位</h4>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15" style="min-height:420px;">
+            <label class="layui-col-xs3">
+                <span class="color-green">校区</span>
+                <input type="text" name="campus" value='{$vo->campus}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">房间规格</span>
+                <input type="text" name="room_type" value='{$vo->room_type}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">房间</span>
+                <input type="text" name="room_name" value='{$vo->room_name}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">床位</span>
+                <select name="bed_num"  lay-filter="bed_num" class="layui-input input_ctrl">
+                    <option value="">请选择床位</option>
+                    {for start="1" end="$vo.room_type_num"}
+                    <option value="{$i}">{$i}号床</option>
+                    {/for}
+                </select>
+            </label>
+        </div>
+        {notempty name="vo->id"}<input type="hidden" name="id" value="{$vo->id}">{/notempty}
+        <div class="layui-form-item text-center">
+            <button class="layui-btn layui-btn-danger" type="button" data-confirm="确定要取消床位安排吗？" data-close="">取消</button>
+            <button class="layui-btn" type='submit'>确定</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    form.render();
+</script>
