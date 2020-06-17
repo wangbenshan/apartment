@@ -10,12 +10,13 @@
 <button data-modal='{:url("import")}' data-title="导入订单" class='layui-btn layui-btn-sm layui-btn-primary'>导入订单</button>
 {/if}
 
-{if auth("add")}
-<button data-open='{:url("add")}' data-title="安排房间" class='layui-btn layui-btn-sm layui-btn-primary'>安排房间</button>
+{if auth("reserve")}
+<button data-open='{:url("reserve")}' data-title="学生预定" class='layui-btn layui-btn-sm layui-btn-primary'>学生预定</button>
 {/if}
 
-{if auth("reserve")}
-<button data-open='{:url("reserve")}' data-title="预定房间" class='layui-btn layui-btn-sm layui-btn-primary'>预定房间</button>
+{if auth("add")}
+<!--<button data-open='{:url("add")}' data-title="同学入住" class='layui-btn layui-btn-sm layui-btn-primary'>同学入住</button>-->
+<button data-title="同学入住" class='layui-btn layui-btn-sm layui-btn-primary order_add'>同学入住</button>
 {/if}
 
 {/block}
@@ -60,6 +61,12 @@
                 </div>
             </div>
             <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">业务员</label>
+                <div class="layui-input-inline">
+                    <input name="salesman" value="{$Think.get.salesman|default=''}" placeholder="请输入业务员姓名" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
                 <label class="layui-form-label">订单状态</label>
                 <div class="layui-input-inline">
                     <div class="layui-input-inline">
@@ -84,9 +91,6 @@
     <table class="layui-table margin-top-10" lay-skin="line">
         <thead>
         <tr>
-            <th class='list-table-check-td think-checkbox'>
-                <label><input data-auto-none data-check-target='.list-check-box' type='checkbox'></label>
-            </th>
             <th class='text-center nowrap'>校区 / 规格 / 房间【床号】</th>
             <th class="text-center nowrap">姓名</th>
             <th class="text-center nowrap">联系方式</th>
@@ -95,7 +99,7 @@
             <th class="text-center nowrap">入住时间 ~ 到期时间</th>
             <th class="text-center nowrap">定金</th>
             <th class="text-center nowrap">押金</th>
-            <th class="text-center nowrap">订单总额</th>
+            <th class="text-center nowrap">学费总金额</th>
             <th class="text-center nowrap">订单状态</th>
             <th class="text-center nowrap">订单创建时间</th>
             <th class="text-center nowrap">业务员</th>
@@ -105,9 +109,6 @@
         <tbody>
         {foreach $list as $key=>$vo}
         <tr>
-            <td class='list-table-check-td think-checkbox'>
-                <label><input class="list-check-box" value='{$vo.id}' type='checkbox'></label>
-            </td>
             <td class='text-center'>
                 {$vo.campus} / {$vo.room_type} / {if $vo.room_name == '' || $vo.room_name == '未安排'}<span class="color-red">未安排</span>
                 {else /}{$vo.room_name}【{if $vo.bed_num == 0}<span class="color-red">未安排</span>{else /}{$vo.bed_num}号床{/if}】
@@ -126,6 +127,7 @@
                 {case 10}已预订{/case}
                 {case 20}已入住{/case}
                 {case 30}已退房{/case}
+                {case 40}已换房{/case}
                 {default /}未知
                 {/switch}
             </td>
@@ -145,8 +147,13 @@
                 <a class="layui-btn layui-btn-xs" data-open='{:url("apartment/orders/change")}?id={$vo.id}'>调换房间</a>
                 {/if}
                 {if $vo.status == 20 && !empty($vo.room_id) && auth("apartment/orders/checkout")}
-                <span class="text-explode">|</span>
-                <a class="layui-btn layui-btn-xs layui-btn-warm" data-open='{:url("apartment/orders/checkout")}?id={$vo.id}'>退 房</a>
+                    {if empty($vo.bed_num) && auth("apartment/orders/arrangeBed")}
+                    <span class="text-explode">|</span>
+                    <a class="layui-btn layui-btn-xs layui-btn-normal" data-modal='{:url("apartment/orders/arrangeBed")}?id={$vo.id}'>安排床位</a>
+                    {else /}
+                    <span class="text-explode">|</span>
+                    <a class="layui-btn layui-btn-xs layui-btn-warm" data-modal='{:url("apartment/orders/checkout")}?id={$vo.id}'>退 房</a>
+                    {/if}
                 {/if}
             </td>
         </tr>
@@ -157,10 +164,79 @@
 
     {notempty name='list'}{$pagehtml|raw|default=''}{/notempty}
 </div>
+
+<div class="layui-hide">
+    <div class="layui-form" id="add_confirm" lay-filter="add_confirm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">是否预定</label>
+            <div class="layui-input-block">
+                <input type="radio" name="is_reserved" lay-filter="is_reserved" value="1" title="已预订" checked />
+                <input type="radio" name="is_reserved" lay-filter="is_reserved" value="0" title="未预订" />
+            </div>
+        </div>
+        <div class="layui-form-item" id="query_name_cnt">
+            <div class="layui-input-block">
+                <div class="layui-inline"><input class="layui-input" name="query_name" placeholder="请输入学生姓名" /></div>
+                <button class="layui-btn layui-btn-sm layui-btn-primary" id="query_name_btn">查询</button>
+            </div>
+            <div class="layui-input-block" id="students_list">
+
+            </div>
+        </div>
+    </div>
+</div>
+
 {/block}
 
 {block name="script"}
 <script>
     form.render();
+
+    $('.order_add').click(function(data){
+        let index = layer.open({
+            title: '学生入住',
+            area: ['600px', '480px'],
+            content: $('#add_confirm').prop("outerHTML"),
+            btn: ['确定', '取消'],
+            yes: function(){
+                let is_reserved = $('[name=is_reserved]:checked').val();
+                if(is_reserved == 0){
+                    $.form.href("{:url('add')}");
+                }else if(is_reserved == 1){
+                    let id = $('[name=add_stu_oid]:checked').val()
+                    $.form.modal("{:url('handleReserve')}?id="+id);
+                }
+                layer.close(index);
+            }
+        });
+        form.render(null, 'add_confirm');
+    });
+
+    form.on('radio(is_reserved)', function(data){
+        if(data.value == 0){
+            $('.layui-layer #query_name_cnt').addClass('layui-hide');
+        }else{
+            $('.layui-layer #query_name_cnt').removeClass('layui-hide');
+        }
+    });
+
+    $('body').on('click', '.layui-layer #query_name_btn', function(){
+        let name = $.trim($(this).siblings('div').find('[name=query_name]').val());
+        let load_index = $.msg.loading();
+        $.post("{:url('queryStudentsByName')}", {name: name}, function(data){
+            let html = '';
+            for(let i in data){
+                let stu = data[i];
+                html += '<div><input type="radio" name="add_stu_oid" value="'+ stu['id'] +'" title="'+ stu['stu_name'] + ' - ' + stu['stu_phone'] +'" /></div>';
+            }
+            $('.layui-layer #students_list').html(html);
+            form.render('radio', 'add_confirm');
+            layer.close(load_index);
+        });
+    });
+
+    form.on('select(add_select)', function(data){
+        console.log(data)
+    });
 </script>
 {/block}

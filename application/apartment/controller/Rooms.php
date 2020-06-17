@@ -172,7 +172,7 @@ class Rooms extends Controller
                 ['room_id', '=', $id],
                 ['status', '=', $status]
             ])->field('id, stu_name, stu_phone, native_place, stu_id_num, school, application,
-             book_in_time, departure_time, campus, room_name')->select();
+             book_in_time, departure_time, campus, room_name, bed_num')->select();
             $this->assign('list', $list);
             $this->fetch();
         }

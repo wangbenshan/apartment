@@ -7,23 +7,24 @@ use think\Validate;
 class OrdersValidate extends Validate
 {
     protected $rule = [
-        'campus_id'         =>  'require|number',
-        'room_type_num'     =>  'require|number',
-        'room_id'           =>  'require|number',
-        'bed_num'           =>  'require|number',
-        'stu_name'          =>  'require|max:50',
-        'sex'               =>  'require|number',
-        'stu_phone'         =>  'require|mobile',
-        'stu_id_num'        =>  'require|idCard',
-        'book_in_time'      =>  'require|date',
-        'departure_time'    =>  'require|date',
-        'public_water_rate' =>  'number',
-        'total_money'       =>  'require|number',
+        'campus_id'                 =>  'require|number',
+        'room_type_num'             =>  'require|number',
+        'room_id'                   =>  'require|number',
+        'bed_num'                   =>  'require|number',
+        'stu_name'                  =>  'require|max:50',
+        'sex'                       =>  'require|number',
+        'stu_phone'                 =>  'require|mobile',
+        'stu_id_num'                =>  'require|idCard',
+        'book_in_time'              =>  'require|date',
+        'departure_time'            =>  'require|date',
+        'public_water_rate'         =>  'number',
+        'actual_public_water_rate'  =>  'number',
+        'total_money'               =>  'require|number',
 
-        'front_money'       =>  'require|number',
+        'front_money'               =>  'require|number',
 
-        'deposit'           =>  'require|number',
-        'pay_money'         =>  'require|number',
+        'deposit'                   =>  'require|number',
+        'pay_money'                 =>  'require|number',
     ];
 
     /**
@@ -53,6 +54,8 @@ class OrdersValidate extends Validate
         'book_in_time.date'      =>  '入住时间格式错误',
         'departure_time.require' =>  '请选择离店时间',
         'departure_time.date'    =>  '离店时间格式错误',
+        'public_water_rate.number'             =>  '请输入正确的公共水电费金额',
+        'actual_public_water_rate.number'      =>  '请输入正确的公共水电费实缴金额',
         'total_money.require'    =>  '请输入订单金额',
         'total_money.number'     =>  '订单金额格式错误',
         'front_money.require'    =>  '请输入定金',
@@ -66,14 +69,14 @@ class OrdersValidate extends Validate
     public function sceneReserve()
     {
         return $this->only(['campus_id', 'room_type_num', 'room_id', 'stu_name', 'sex', 'stu_phone',
-            'stu_id_num', 'stu_id_num', 'book_in_time', 'departure_time', 'public_water_rate', 'total_money', 'front_money'])
+            'stu_id_num', 'stu_id_num', 'book_in_time', 'departure_time', 'public_water_rate', 'actual_public_water_rate', 'total_money', 'front_money'])
             ->remove('room_id', 'require');
     }
 
     public function sceneAdd()
     {
         return $this->only(['campus_id', 'room_type_num', 'room_id', 'bed_num', 'stu_name', 'sex', 'stu_phone',
-            'stu_id_num', 'stu_id_num', 'book_in_time', 'departure_time', 'public_water_rate', 'total_money', 'deposit', 'pay_money']);
+            'stu_id_num', 'stu_id_num', 'book_in_time', 'departure_time', 'public_water_rate', 'actual_public_water_rate', 'total_money', 'deposit', 'pay_money']);
     }
 
     public function sceneHandleReserve()

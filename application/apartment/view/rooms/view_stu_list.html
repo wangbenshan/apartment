@@ -34,7 +34,7 @@
             <td class='text-center'>{$vo['departure_time']}</td>
             <td class='text-center'>{$vo['campus']}</td>
             <td class='text-center'>{$vo['room_name']}</td>
-            <td class='text-center'></td>
+            <td class='text-center'>{:$vo['bed_num'] > 0 ? $vo['bed_num'].'号床' : '<span class="color-red">未安排</span>'}</td>
             <td class='text-center nowrap'>
                 {if auth("apartment/orders/change")}
                 <a class="layui-btn layui-btn-xs layui-btn-normal" data-open='{:url("apartment/orders/change")}?id={$vo.id}'>调 换</a>

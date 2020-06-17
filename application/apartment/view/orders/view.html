@@ -98,13 +98,17 @@
                 <input type="number" name="public_water_rate" value='{$vo->public_water_rate|default="0.00"}' readonly class="layui-input">
             </label>
             <label class="layui-col-xs3">
+                <span class="color-green">公共水电费实缴（¥）</span>
+                <input type="number" name="actual_public_water_rate" value='{$vo->actual_public_water_rate|default="0.00"}' readonly class="layui-input">
+            </label>
+            <label class="layui-col-xs3">
                 <span class="color-green">电费周期</span>
                 <input name="power_rate_cycle" value='{$vo->power_rate_cycle|default=""}' readonly class="layui-input">
             </label>
         </div>
         <div class="layui-form-item layui-row layui-col-space15">
             <label class="layui-col-xs3">
-                <span class="color-green">订单总额（¥）</span>
+                <span class="color-green">学费总金额（¥）</span>
                 <input type="number" name="total_money" value='{$vo->total_money|default="0.00"}' readonly class="layui-input">
             </label>
             <label class="layui-col-xs3">

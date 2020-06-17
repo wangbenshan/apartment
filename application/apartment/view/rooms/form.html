@@ -4,11 +4,11 @@
 <form id="roomForm" autocomplete="off" class="layui-form layui-card">
     <div class="layui-card-body think-box-shadow padding-left-40">
         <div class="layui-form-item layui-row layui-col-space15">
-            <label class="layui-col-xs3 relative">
+            <label class="layui-col-xs2 relative">
                 <span class="color-green">房间号</span>
                 <input name="name" value='{$vo->name|default=""}' lay-verify="required" required placeholder="请输入房间号" class="layui-input input_ctrl">
             </label>
-            <label class="layui-col-xs3 relative">
+            <label class="layui-col-xs2 relative">
                 <span class="color-green">所属校区</span>
                 <select name="campus" required class="layui-input input_ctrl" lay-verify="checkCampus">
                     <option value="-1">请选择校区</option>
@@ -17,7 +17,11 @@
                     {/foreach}
                 </select>
             </label>
-            <label class="layui-col-xs3 relative">
+            <label class="layui-col-xs2 relative">
+                <span class="color-green">楼层</span>
+                <input type="number" name="floor" value='{$vo->floor|default=""}' lay-verify="required" required placeholder="请输入楼层数" class="layui-input input_ctrl">
+            </label>
+            <label class="layui-col-xs2 relative">
                 <span class="color-green">房间规格</span>
                 <select lay-filter="bed_total" name="bed_total" required class="layui-input input_ctrl" lay-verify="checkBedNumbers">
                     <option value="-1">请选择房间规格</option>
@@ -26,7 +30,7 @@
                     {/foreach}
                 </select>
             </label>
-            <label class="layui-col-xs3 relative">
+            <label class="layui-col-xs2 relative">
                 <span class="color-green">房间价格（¥）</span>
                 <input type="number" name="price" value='{$vo->price|default=""}' lay-verify="required" required placeholder="请输入房间价格" class="layui-input input_ctrl">
             </label>

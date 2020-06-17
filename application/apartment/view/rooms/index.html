@@ -61,6 +61,7 @@
             </th>
             <th class='text-center nowrap'>房间名称</th>
             <th class='text-center nowrap'>所属校区</th>
+            <th class='text-center nowrap'>楼层</th>
             <th class="text-center nowrap">房间规格</th>
             <th class='text-center nowrap'>床位价格（¥）</th>
             <th class='text-center nowrap'>床位总数</th>
@@ -80,10 +81,11 @@
             </td>
             <td class='text-center'>{$vo['name']}</td>
             <td class="text-center nowrap">{$campus[$vo['campus']]['name']}</td>
+            <td class="text-center nowrap">{if $vo['floor'] == 0}<span class="color-red">未设置</span>{else /}{$vo['floor']}{/if}</td>
             <td class='text-center nowrap'>{$beds_config[$vo['bed_total']]['text']}</td>
             <td class="text-center nowrap">{$vo['price']}</td>
             <td class="text-center nowrap">{$vo['bed_total']}</td>
-            <td class="text-center nowrap">{$vo['bed_total']}</td>
+            <td class="text-center nowrap">{$vo['bed_total'] - $vo['book_in'] - $vo['reserved']}</td>
             <td class="text-center nowrap">
                 {if $vo['book_in'] == 0}0
                 {else /}<a class="layui-inline full-width full-height color-blue" style="text-decoration: underline;"

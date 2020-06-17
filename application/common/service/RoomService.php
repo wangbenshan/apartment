@@ -81,6 +81,7 @@ class RoomService extends CommonService
             $room_data = [
                 'name'          =>  $data['name'],
                 'campus'        =>  $data['campus'],
+                'floor'         =>  $data['floor'],
                 'bed_total'     =>  $data['bed_total'],
                 'price'         =>  $data['price'],
                 'facilities'    =>  $data['facilities'],
@@ -121,6 +122,7 @@ class RoomService extends CommonService
             $room_data = [
                 'name'          =>  $data['name'],
                 'campus'        =>  $data['campus'],
+                'floor'         =>  $data['floor'],
                 'bed_total'     =>  $data['bed_total'],
                 'price'         =>  $data['price'],
                 'facilities'    =>  $data['facilities'],
@@ -135,7 +137,7 @@ class RoomService extends CommonService
             $room_data['id'] = $data['id'];
 
             // 修改房间数据
-            $res = Db::name('apartment')->update($room_data);
+            $res = Db::name('rooms')->update($room_data);
             if($res == 0) throw new Exception('未作修改！');
 
             $this->commit();
