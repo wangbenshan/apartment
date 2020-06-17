@@ -9,6 +9,7 @@ use app\common\model\Rooms;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use think\Db;
+use think\db\Where;
 use think\Exception;
 
 /**
@@ -24,6 +25,26 @@ class Orders extends Base
      */
     public $table = 'Orders';
 
+    public $campus = [];
+
+    public $is_salesman = false;
+
+    public function initialize()
+    {
+        parent::initialize();
+        $this->campus = session('user.bind_campus');
+        $this->assign('bind_campus', $this->campus);
+
+        // 获取身份
+        $auth = explode(',', session('user.authorize'));
+        // 如果是业务员
+        if(in_array(self::SYSTEM_AUTH_SALESMAN, $auth)){
+            $this->is_salesman = true;
+        }
+
+        $this->assign('is_salesman', $this->is_salesman);
+    }
+
     /**
      * 订单列表
      * @auth true
@@ -33,16 +54,32 @@ class Orders extends Base
         if ($this->request->isGet()) {
             $this->title = '订单列表';
 
-            // 校区列表
-            $this->assign('campus', RoomService::getCampus());
+            $where = [];
+            $where[] = ['status', '<>', 40];
+            if(empty($this->campus)){
+                // 校区列表
+                $this->assign('campus', RoomService::getCampus());
+            }else{
+                $where[] = ['campus_id', '=', $this->campus['id']];
+            }
+
             // 房间规格列表
             $this->assign('beds_config', RoomService::getRoomType());
 
-            $this->_query($this->table)
-                ->where('status', '<>', 40)
-                ->order('add_time desc,id desc')
-                ->equal('campus_id#campus,room_type_num#room_type,status')
-                ->like('room_name,stu_name,stu_phone,salesman')->page();
+            $query_obj = $this->_query($this->table)
+                ->where($where)->order('add_time desc,id desc');
+            // 业务员
+            if($this->is_salesman){
+                $map = [];
+                $map[] = ['salesman_id', '=', session('user.id')];
+                $map[] = ['salesman', 'like', '%"'.session('user.real_name').'"%'];
+                $query_obj->where(function($query) use ($map){
+                    $query->whereOr($map);
+                })->like('room_name,stu_name,stu_phone');
+            }else{
+                $query_obj->like('room_name,stu_name,stu_phone,salesman');
+            }
+            $query_obj->equal('campus_id#campus,room_type_num#room_type,status')->page();
         }
     }
 
@@ -129,7 +166,7 @@ class Orders extends Base
             $data['status'] = 20;   // 已付款，已入住
 
             $data['salesman_id'] = session('user.id');
-            $data['salesman'] = session('user.username');
+            $data['salesman'] = session('user.real_name');
             $res = OrdersModel::create($data);
             if ($res->isEmpty()) $this->error('创建订单失败，请重试！');
             $this->success('下单成功，顾客可以入住房间啦！');
@@ -207,7 +244,7 @@ class Orders extends Base
             $data['status'] = 10;   // 已预订
 
             $data['salesman_id'] = session('user.id');
-            $data['salesman'] = session('user.username');
+            $data['salesman'] = session('user.real_name');
             $res = OrdersModel::create($data);
             if ($res->isEmpty()) $this->error('创建订单失败，请重试！');
             $this->success('预定房间成功！');
@@ -297,7 +334,7 @@ class Orders extends Base
             $data['pay_money'] = $order['front_money'] + $data['deposit'] + $data['actual_rest_money'];
 
 //            $data['salesman_id'] = session('user.id');
-//            $data['salesman'] = session('user.username');
+//            $data['salesman'] = session('user.real_name');
 
             $res = Db::name('orders')->update($data);
             if ($res == 0) $this->error('预定订单处理失败，请重试！');
@@ -404,7 +441,7 @@ class Orders extends Base
                     'room_type_num' => $room->bed_total,
                     'room_type' => RoomService::getRoomType($room->bed_total),
                     'campus_id' => $room->campus,
-//                    'campus' => (RoomService::getCampus($room->campus))->name,
+                    'campus' => (RoomService::getCampus($room->campus))->name,
                     'stu_name' => $order->stu_name,
                     'stu_id_num' => $order->stu_id_num,
                     'sex' => $order->sex,
@@ -430,7 +467,7 @@ class Orders extends Base
                     'status' => $order_status,
                     'comment' => $order->comment,
                     'salesman_id' => session('user.id'),
-                    'salesman' => session('user.username'),
+                    'salesman' => session('user.real_name'),
                     'change_from' => $order->id,
                     'diff_money' => $data['total_money'] - $order->pay_money
                 ];

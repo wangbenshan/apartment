@@ -36,9 +36,5 @@ class Base extends Controller
             $user['bind_campus'] = $campus;
             $this->app->session->set('user', $user);
         }
-        // 如果是业务员
-        elseif(in_array(self::SYSTEM_AUTH_SALESMAN, $auth)){
-
-        }
     }
 }

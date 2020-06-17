@@ -29,12 +29,16 @@
             <div class="layui-form-item layui-inline">
                 <label class="layui-form-label">所属校区</label>
                 <div class="layui-input-inline">
+                    {empty name="bind_campus"}
                     <select name="campus">
                         <option value="">全部</option>
                         {foreach $campus as $val}
                         <option value="{$val->id}" {if $Think.get.campus == $val->id}selected{/if}>{$val->name}</option>
                         {/foreach}
                     </select>
+                    {else}
+                    <div class="layui-input" style="line-height: 26px;height: 32px;padding: 2px 8px;background:#eee;">{$bind_campus['name']}</div>
+                    {/empty}
                 </div>
             </div>
             <div class="layui-form-item layui-inline">
@@ -60,12 +64,14 @@
                     <input name="stu_name" value="{$Think.get.stu_name|default=''}" placeholder="请输入学生姓名" class="layui-input">
                 </div>
             </div>
+            {empty name="is_salesman"}
             <div class="layui-form-item layui-inline">
                 <label class="layui-form-label">业务员</label>
                 <div class="layui-input-inline">
                     <input name="salesman" value="{$Think.get.salesman|default=''}" placeholder="请输入业务员姓名" class="layui-input">
                 </div>
             </div>
+            {/empty}
             <div class="layui-form-item layui-inline">
                 <label class="layui-form-label">订单状态</label>
                 <div class="layui-input-inline">
@@ -233,10 +239,6 @@
             form.render('radio', 'add_confirm');
             layer.close(load_index);
         });
-    });
-
-    form.on('select(add_select)', function(data){
-        console.log(data)
     });
 </script>
 {/block}

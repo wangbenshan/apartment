@@ -1,0 +1,76 @@
+{extend name='main'}
+
+{block name="content"}
+<div class="think-box-shadow">
+    <fieldset>
+        <legend>条件搜索</legend>
+        <form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">起始时间</label>
+                <div class="layui-input-inline">
+                    <input name="start_time" value="{$Think.get.start_time|default=''}" placeholder="请选择起始时间" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">截止时间</label>
+                <div class="layui-input-inline">
+                    <input name="end_time" value="{$Think.get.end_time|default=''}" placeholder="请选择截止时间" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+            </div>
+            <div class="layui-form-item layui-inline pull-right">已交学费总金额(¥)：{$total_amount}</div>
+        </form>
+    </fieldset>
+    {empty name='list'}
+    <blockquote class="layui-elem-quote">没 有 记 录 哦！</blockquote>
+    {else}
+    <table class="layui-table margin-top-10" lay-skin="line">
+        <thead>
+        <tr>
+            <th class="text-center nowrap">姓名</th>
+            <th class="text-center nowrap">业务员</th>
+            <th class="text-center nowrap">学费总金额</th>
+            <th class="text-center nowrap">定金</th>
+            <th class="text-center nowrap">已交学费（含定金）</th>
+            <th class="text-center nowrap">押金</th>
+            <th class="text-center nowrap">应补缴费用</th>
+            <th class="text-center nowrap">应缴公共水电费</th>
+            <th class="text-center nowrap">实缴公共水电费</th>
+            <th class="text-center nowrap">付款时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $list as $key=>$vo}
+        <tr>
+            <td class='text-center'>{$vo.stu_name}</td>
+            <td class='text-center'>{$vo.salesman}</td>
+            <td class='text-center'>{$vo.total_money ?: '--'}</td>
+            <td class='text-center'>{$vo.front_money ?: '--'}</td>
+            <td class='text-center'>{$vo.pay_money ?: '--'}</td>
+            <td class='text-center'>{$vo.deposit ?: '--'}</td>
+            <td class='text-center'>{$vo.total_money - $vo.pay_money}</td>
+            <td class='text-center'>{$vo.public_water_rate ?: '--'}</td>
+            <td class='text-center'>{$vo.actual_public_water_rate ?: '--'}</td>
+            <td class="text-center">{$vo.pay_time ?: '--'}</td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+    {/empty}
+    {notempty name='list'}{$pagehtml|raw|default=''}{/notempty}
+</div>
+{/block}
+
+{block name="script"}
+<script>
+    form.render();
+
+    const date_base_config = {btns: ['clear', 'confirm']};
+
+    // 起始时间/截止时间 选择面板渲染
+    laydate.render($.extend(date_base_config, {elem: '[name=start_time]'}));
+    laydate.render($.extend(date_base_config, {elem: '[name=end_time]'}));
+</script>
+{/block}
