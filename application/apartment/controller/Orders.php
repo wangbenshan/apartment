@@ -695,10 +695,15 @@ class Orders extends Base
         }
     }
 
-    // 根据学生姓名检索学生
-    public function queryStudentsByName()
+    /**
+     * 根据学生姓名检索学生
+     */
+    public function queryStudents()
     {
-        if($this->request->isPost()){
+        if($this->request->isGet()){
+            $this->title = '查询学生';
+            $this->fetch();
+        }elseif($this->request->isPost()){
             $name = $this->request->post('name');
             $where = [];
             $where[] = ['status', '=', '10'];

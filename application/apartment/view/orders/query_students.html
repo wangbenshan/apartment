@@ -1,0 +1,63 @@
+<form class="layui-form layui-card" onsubmit="return false;" autocomplete="off" style="min-height: 480px;">
+    <div class="layui-card-body think-box-shadow padding-left-40">
+        <div class="layui-row layui-col-space15" style="height:420px;">
+            <div class="layui-form-item">
+                <label class="layui-form-label">是否预定</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="is_reserved" lay-filter="is_reserved" value="1" title="已预订" checked />
+                    <input type="radio" name="is_reserved" lay-filter="is_reserved" value="0" title="未预订" />
+                </div>
+
+                <div id="query_name_cnt" class="margin-top-10">
+                    <div class="layui-input-block">
+                        <div class="layui-inline margin-0 margin-right-10"><input class="layui-input" style="height:32px;" name="query_name" placeholder="请输入学生姓名" /></div>
+                        <button class="layui-btn layui-btn-sm layui-btn-primary" id="query_name_btn">查询</button>
+                    </div>
+                    <div class="layui-input-block" id="students_list" lay-filter="students_list" style="max-height:300px;overflow:auto;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item text-center">
+            <button class="layui-btn layui-btn-danger" type="button" data-confirm="确定要取消吗？" data-close="">取消</button>
+            <button class="layui-btn" type='button' id="order_add">确定</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    form.render();
+
+    $('#order_add').click(function(data){
+        let is_reserved = $('[name=is_reserved]:checked').val();
+        layer.closeAll();
+        if(is_reserved == 0){
+            $.form.href("{:url('add')}");
+        }else if(is_reserved == 1){
+            let id = $('[name=add_stu_oid]:checked').val()
+            $.form.modal("{:url('handleReserve')}?id="+id);
+        }
+    });
+
+    form.on('radio(is_reserved)', function(data){
+        if(data.value == 0){
+            $('#query_name_cnt').addClass('layui-hide');
+        }else{
+            $('#query_name_cnt').removeClass('layui-hide');
+        }
+    });
+
+    $('#query_name_btn').click(function(){
+        let name = $.trim($(this).siblings('div').find('[name=query_name]').val());
+        let load_index = $.msg.loading();
+        $.post("{:url('queryStudents')}", {name: name}, function(data){
+            layer.close(load_index);
+            let html = '';
+            for(let i in data){
+                let stu = data[i];
+                html += '<div><input type="radio" name="add_stu_oid" value="'+ stu['id'] +'" title="'+ stu['stu_name'] + ' - ' + stu['stu_phone'] +'" /></div>';
+            }
+            $('#students_list').html(html);
+            form.render();
+        });
+    });
+</script>

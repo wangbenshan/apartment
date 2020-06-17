@@ -16,7 +16,7 @@
 
 {if auth("add")}
 <!--<button data-open='{:url("add")}' data-title="同学入住" class='layui-btn layui-btn-sm layui-btn-primary'>同学入住</button>-->
-<button data-title="同学入住" class='layui-btn layui-btn-sm layui-btn-primary order_add'>同学入住</button>
+<button data-modal='{:url("queryStudents")}' data-title="同学入住" class='layui-btn layui-btn-sm layui-btn-primary'>同学入住</button>
 {/if}
 
 {/block}
@@ -170,75 +170,10 @@
 
     {notempty name='list'}{$pagehtml|raw|default=''}{/notempty}
 </div>
-
-<div class="layui-hide">
-    <div class="layui-form" id="add_confirm" lay-filter="add_confirm">
-        <div class="layui-form-item">
-            <label class="layui-form-label">是否预定</label>
-            <div class="layui-input-block">
-                <input type="radio" name="is_reserved" lay-filter="is_reserved" value="1" title="已预订" checked />
-                <input type="radio" name="is_reserved" lay-filter="is_reserved" value="0" title="未预订" />
-            </div>
-        </div>
-        <div class="layui-form-item" id="query_name_cnt">
-            <div class="layui-input-block">
-                <div class="layui-inline"><input class="layui-input" name="query_name" placeholder="请输入学生姓名" /></div>
-                <button class="layui-btn layui-btn-sm layui-btn-primary" id="query_name_btn">查询</button>
-            </div>
-            <div class="layui-input-block" id="students_list">
-
-            </div>
-        </div>
-    </div>
-</div>
-
 {/block}
 
 {block name="script"}
 <script>
     form.render();
-
-    $('.order_add').click(function(data){
-        let index = layer.open({
-            title: '学生入住',
-            area: ['600px', '480px'],
-            content: $('#add_confirm').prop("outerHTML"),
-            btn: ['确定', '取消'],
-            yes: function(){
-                let is_reserved = $('[name=is_reserved]:checked').val();
-                if(is_reserved == 0){
-                    $.form.href("{:url('add')}");
-                }else if(is_reserved == 1){
-                    let id = $('[name=add_stu_oid]:checked').val()
-                    $.form.modal("{:url('handleReserve')}?id="+id);
-                }
-                layer.close(index);
-            }
-        });
-        form.render(null, 'add_confirm');
-    });
-
-    form.on('radio(is_reserved)', function(data){
-        if(data.value == 0){
-            $('.layui-layer #query_name_cnt').addClass('layui-hide');
-        }else{
-            $('.layui-layer #query_name_cnt').removeClass('layui-hide');
-        }
-    });
-
-    $('body').on('click', '.layui-layer #query_name_btn', function(){
-        let name = $.trim($(this).siblings('div').find('[name=query_name]').val());
-        let load_index = $.msg.loading();
-        $.post("{:url('queryStudentsByName')}", {name: name}, function(data){
-            let html = '';
-            for(let i in data){
-                let stu = data[i];
-                html += '<div><input type="radio" name="add_stu_oid" value="'+ stu['id'] +'" title="'+ stu['stu_name'] + ' - ' + stu['stu_phone'] +'" /></div>';
-            }
-            $('.layui-layer #students_list').html(html);
-            form.render('radio', 'add_confirm');
-            layer.close(load_index);
-        });
-    });
 </script>
 {/block}
