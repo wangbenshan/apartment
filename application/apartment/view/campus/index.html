@@ -1,0 +1,47 @@
+{extend name='main'}
+
+{block name="content"}
+<div class="think-box-shadow">
+    {empty name='list'}
+    <blockquote class="layui-elem-quote">没 有 记 录 哦！</blockquote>
+    {else}
+    <table class="layui-table margin-top-10" lay-skin="line">
+        <thead>
+        <tr>
+            <th class='text-center nowrap'>校区名称</th>
+            <th class='text-center nowrap'>绑定情况</th>
+            <th class='text-center nowrap'></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $list as $key=>$vo}
+        <tr>
+            <td class='text-center'>{$vo['name']}</td>
+            <td class='text-center'>
+                {if $vo.count == 0}
+                <span class="color-red">未绑定</span>
+                {else /}
+                <button class="layui-btn layui-btn-sm layui-btn-normal" data-modal='{:url("apartment/campus/viewBind")}?id={$vo.id}'>查看绑定</button>
+                {/if}
+            </td>
+            <td class='text-left nowrap'>
+                {if auth("edit")}
+                <a class="layui-btn layui-btn-sm" data-modal='{:url("apartment/campus/bindTeacher")}?id={$vo.id}'>绑定老师</a>
+                {/if}
+            </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+    {/empty}
+
+    {notempty name='list'}{$pagehtml|raw|default=''}{/notempty}
+</div>
+{/block}
+
+{block name="script"}
+<script>
+    form.render();
+</script>
+{/block}

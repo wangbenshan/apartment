@@ -1,0 +1,36 @@
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body think-box-shadow padding-left-40">
+        <div class="layui-form-item layui-row layui-col-space15" style="min-height:420px;">
+            <table class="layui-table margin-top-10" lay-skin="line">
+                <thead>
+                <tr>
+                    <th class='text-center nowrap'>用户名</th>
+                    <th class='text-center nowrap'></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach $list as $key=>$vo}
+                <tr>
+                    <td class='text-center'>{$vo['username']}</td>
+                    <td class='text-left nowrap'>
+                        {if auth("forbid")}
+                        <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要解除绑定吗？" data-modal='{:url("forbid")}?id={$vo.id}' data-csrf="{:systoken('forbid')}">解除绑定</a>
+                        {/if}
+                    </td>
+                </tr>
+                {/foreach}
+                </tbody>
+            </table>
+        </div>
+        {notempty name="vo->id"}<input type="hidden" name="id" value="{$vo->id}">{/notempty}
+        <div class="layui-form-item text-center">
+            <button class="layui-btn layui-btn-danger" type="button" data-confirm="确定要取消绑定老师吗？" data-close="">取消</button>
+            <button class="layui-btn" type='submit'>绑定</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    form.render();
+</script>

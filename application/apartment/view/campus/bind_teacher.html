@@ -1,0 +1,28 @@
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body think-box-shadow padding-left-40">
+        <div class="layui-form-item layui-row layui-col-space15" style="min-height:420px;">
+            <label class="layui-col-xs3">
+                <span class="color-green">校区</span>
+                <input type="text" name="campus" value='{$campus->name}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">选择老师</span>
+                <select name="user_id"  lay-filter="user_id" class="layui-input input_ctrl" required>
+                    <option value="">选择老师</option>
+                    {foreach $users as $user}
+                    <option value="{$user.id}">{$user.username}</option>
+                    {/foreach}
+                </select>
+            </label>
+        </div>
+        {notempty name="vo->id"}<input type="hidden" name="id" value="{$vo->id}">{/notempty}
+        <div class="layui-form-item text-center">
+            <button class="layui-btn layui-btn-danger" type="button" data-confirm="确定要取消绑定老师吗？" data-close="">取消</button>
+            <button class="layui-btn" type='submit'>绑定</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    form.render();
+</script>
