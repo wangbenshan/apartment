@@ -2,10 +2,7 @@
 
 namespace app\apartment\controller;
 
-use app\common\model\SystemUser;
 use app\common\service\RoomService;
-use library\Controller;
-use app\common\model\Campus as CampusModel;
 use think\Db;
 
 /**
@@ -13,7 +10,7 @@ use think\Db;
  * Class Campus
  * @package app\apartment\controller
  */
-class Campus extends Controller
+class Campus extends Base
 {
     /**
      * 默认数据模型
@@ -116,6 +113,6 @@ class Campus extends Controller
     public function forbid()
     {
         $this->applyCsrfToken();
-        $this->_save('CampusUsers', ['status' => '0'], '', ['id' => $this->request->param('id')]);
+        $this->_delete('CampusUsers', '', ['id' => $this->request->param('id')]);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace app\apartment\controller;
 
-use library\Controller;
 use app\apartment\validate\OrdersValidate;
 use app\common\service\RoomService;
 use app\common\model\Orders as OrdersModel;
@@ -17,7 +16,7 @@ use think\Exception;
  * Class Orders
  * @package app\apartment\controller
  */
-class Orders extends Controller
+class Orders extends Base
 {
     /**
      * 默认数据模型

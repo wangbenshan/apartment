@@ -20,12 +20,16 @@
             <div class="layui-form-item layui-inline">
                 <label class="layui-form-label">所属校区</label>
                 <div class="layui-input-inline">
+                    {empty name="bind_campus"}
                     <select name="campus">
                         <option value="">全部</option>
                         {foreach $campus as $val}
                         <option value="{$val->id}" {if $Think.get.campus == $val->id}selected{/if}>{$val->name}</option>
                         {/foreach}
                     </select>
+                    {else}
+                    <div class="layui-input" style="line-height: 26px;height: 32px;padding: 2px 8px;background:#eee;">{$bind_campus['name']}</div>
+                    {/empty}
                 </div>
             </div>
             <div class="layui-form-item layui-inline">
@@ -80,7 +84,7 @@
                 <label><input class="list-check-box" value='{$vo.id}' type='checkbox'></label>
             </td>
             <td class='text-center'>{$vo['name']}</td>
-            <td class="text-center nowrap">{$campus[$vo['campus']]['name']}</td>
+            <td class="text-center nowrap">{empty name="bind_campus"}{$campus[$vo['campus']]['name']}{else /}{$bind_campus['name']}{/empty}</td>
             <td class="text-center nowrap">{if $vo['floor'] == 0}<span class="color-red">未设置</span>{else /}{$vo['floor']}{/if}</td>
             <td class='text-center nowrap'>{$beds_config[$vo['bed_total']]['text']}</td>
             <td class="text-center nowrap">{$vo['price']}</td>
