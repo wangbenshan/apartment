@@ -685,13 +685,21 @@ class Orders extends Base
             $sheet->getStyle('A1:U'.($count + 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('A1:U1')->getFont()->setBold(true);
 
-            $filename = '订单列表_'.date('YmdHis').'.xlsx';
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//            $filename = '订单列表_'.date('YmdHis').'.xlsx';
+//            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//            header('Content-Disposition: attachment;filename="'.$filename.'"');
+//            header('Cache-Control: max-age=0');
+//            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+
+            $filename = '订单列表_'.date('YmdHis').'.xls';
+            header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="'.$filename.'"');
             header('Cache-Control: max-age=0');
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
 
-            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            ob_clean();
             $writer->save('php://output');
+            exit;
         }
     }
 
