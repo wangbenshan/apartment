@@ -222,15 +222,15 @@ class Rooms extends Base
     }
 
     /**
-     * 获取房间总床位数
+     * 获取房间剩余床位
      */
-    public function getRoomDetails()
+    public function getRoomRestBeds()
     {
         if($this->request->isPost()){
             $room_id = $this->request->post('room_id');
-            $room = RoomsModel::get($room_id);
-            if($room->isEmpty()) $this->error('房间未设置！');
-            $this->success('获取房间详情成功！', $room);
+            $result = (new RoomService)->getAvailableBeds($room_id);
+            if($result['status'] == -1) $this->error($result['msg']);
+            $this->success('获取房间详情成功！', $result['data']);
         }
     }
 }

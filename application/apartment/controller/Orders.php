@@ -273,11 +273,17 @@ class Orders extends Base
                 $this->assign('campus', RoomService::getCampus());
                 // 获取房间规格
                 $this->assign('type', RoomService::getRoomType());
-                // 获取当前校区和房间规格下的可租房间
-                $this->assign('av_rooms', (new RoomService())->getAvailableRoomsByCampus($order->campus_id, $order->room_type_num));
 
-                // 获取床位总数，生成床位列表
-                $this->assign('av_bed_total', Rooms::where('id', $order->room_id)->value('bed_total'));
+                $roomService = new RoomService();
+                // 获取当前校区和房间规格下的可租房间
+                $this->assign('av_rooms', $roomService->getAvailableRoomsByCampus($order->campus_id, $order->room_type_num));
+
+                if(!empty($order->room_id)){
+                    // 获取床位总数，生成床位列表
+                    $result = $roomService->getAvailableBeds($order->room_id);
+                    $rest_beds = $result['status'] == 1 ? $result['data']['rest_beds'] : [];
+                    $this->assign('rest_beds', $rest_beds);
+                }
             }
             return $this->fetch();
         } else {
@@ -358,6 +364,10 @@ class Orders extends Base
         if($this->request->isGet()){
             $this->title = '安排床位';
             $this->assign('vo', $order);
+            // 获取可入住床位
+            $result = (new RoomService)->getAvailableBeds($order->room_id);
+            $rest_beds = $result['status'] == 1 ? $result['data']['rest_beds'] : [];
+            $this->assign('rest_beds', $rest_beds);
             $this->fetch();
         }else{
             $bed_num = $this->request->post('bed_num');

@@ -3,6 +3,7 @@ namespace app\common\service;
 
 use app\apartment\validate\RoomsValidate;
 use app\common\model\Campus;
+use app\common\model\Orders;
 use app\common\model\Rooms;
 use think\Db;
 use think\Exception;
@@ -83,7 +84,7 @@ class RoomService extends CommonService
                 'campus'        =>  $data['campus'],
                 'floor'         =>  $data['floor'],
                 'bed_total'     =>  $data['bed_total'],
-                'price'         =>  $data['price'],
+//                'price'         =>  $data['price'],
                 'facilities'    =>  $data['facilities'],
                 'adder'         =>  session('user.id'),
                 'add_time'      =>  date('Y-m-d H:i:s'),
@@ -124,7 +125,7 @@ class RoomService extends CommonService
                 'campus'        =>  $data['campus'],
                 'floor'         =>  $data['floor'],
                 'bed_total'     =>  $data['bed_total'],
-                'price'         =>  $data['price'],
+//                'price'         =>  $data['price'],
                 'facilities'    =>  $data['facilities'],
                 'adder'         =>  session('user.id')
             ];
@@ -163,5 +164,29 @@ class RoomService extends CommonService
                 ) as oo on rr.id = oo.room_id WHERE rr.bed_total > oo.o_count';
         $rooms = Db::query($sql);
         return empty($rooms) ? [] : $rooms;
+    }
+
+    public function getAvailableBeds($room_id)
+    {
+        $room = Rooms::get($room_id);
+        if($room->isEmpty()) return [
+            'status' => -1,
+            'msg' => '房间未设置！'
+        ];
+        // 已入住和已预定的床位
+        $used_beds = Orders::where([
+            ['room_id', '=', $room_id],
+            ['status', 'in', [10, 20]]
+        ])->distinct('bed_num')->column('bed_num');
+        $rest_beds = [];
+        for($i = 1; $i <= $room->bed_total; $i++){
+            if(in_array($i, $used_beds)) continue;
+            $rest_beds[] = $i;
+        }
+        $room->rest_beds = $rest_beds;
+        return [
+            'status' => 1,
+            'data' => $room
+        ];
     }
 }

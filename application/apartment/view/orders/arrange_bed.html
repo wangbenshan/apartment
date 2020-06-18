@@ -20,9 +20,11 @@
                 <span class="color-green">床位</span>
                 <select name="bed_num"  lay-filter="bed_num" class="layui-input input_ctrl">
                     <option value="">请选择床位</option>
-                    {for start="1" end="$vo.room_type_num"}
-                    <option value="{$i}">{$i}号床</option>
-                    {/for}
+                    {notempty name="rest_beds"}
+                    {foreach $rest_beds as $val}
+                    <option value="{$val}">{$val}号床</option>
+                    {/foreach}
+                    {/notempty}
                 </select>
             </label>
         </div>
