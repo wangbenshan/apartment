@@ -39,15 +39,42 @@ class Rooms extends Base
             // 获取房间规格
             $this->assign('beds_config', array_column(RoomService::getRoomType(), null, 'num'));
 
-            $where1 = [];
-            $where2 = [];
+            $where1 = [];       // orders表条件
+            $where2 = [];       // rooms表条件
+            $where3 = [];       // campus表条件
             if(empty($this->campus)){
                 // 获取校区
                 $this->assign('campus', RoomService::getCampus()->column(null, 'id'));
             }else{
                 $where1[] = ['campus_id', '=', $this->campus['id']];
                 $where2[] = ['campus', '=', $this->campus['id']];
+                $where3[] = ['id', '=', $this->campus['id']];
             }
+
+            // 各校区入住人数、已预订未入住人数
+            $campus_query = Db::name('orders')->group('campus_id')
+                ->fieldRaw('campus_id, COUNT(*) AS total,
+                SUM(IF (`status` = 10, 1, 0) ) AS reserved, 
+                SUM(IF (`status` = 20, 1, 0 ) ) as book_in')
+                ->where($where1)->buildSql();
+
+            // 各校区房间总床位数
+            $campus_bed_total = Db::name('rooms')->where('status', 1)->where($where2)
+                ->fieldRaw('campus, SUM(`bed_total`) as bed_count')
+                ->group('campus')->select();
+            $campus_bed_total = array_column($campus_bed_total, null, 'campus');
+
+            $campus_beds = Db::name('campus')->alias('c')
+                ->leftJoin([$campus_query => 'co'], 'c.id = co.campus_id')
+                ->field('c.id, c.name, co.total, co.reserved, co.book_in')
+                ->where($where3)->select();
+            foreach($campus_beds as $key => $val){
+                if(isset($campus_bed_total[$val['id']])){
+                    $campus_beds[$key]['bed_count'] = $campus_bed_total[$val['id']]['bed_count'];
+                }
+            }
+            $this->assign('campus_beds', $campus_beds);
+
 
             $sub_query = Db::name('orders')->group('room_id')
                 ->fieldRaw('room_id, COUNT(*) AS total,
@@ -59,7 +86,7 @@ class Rooms extends Base
                 ->leftJoin([$sub_query => 'o'], 'r.id = o.room_id')
                 ->field('r.*, o.reserved, o.book_in, total')->where($where2);
             $this->_query($query_obj)->order('add_time desc,id desc')
-                ->equal('campus,bed_total')->like('name')->page();
+                ->equal('campus,bed_total,face')->like('name,facilities')->page();
         }
     }
 

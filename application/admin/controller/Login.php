@@ -15,6 +15,7 @@
 
 namespace app\admin\controller;
 
+use app\common\service\OrdersService;
 use library\Controller;
 use library\service\AdminService;
 use library\service\CaptchaService;
@@ -84,6 +85,11 @@ class Login extends Controller
             $this->app->session->set('user', $user);
             AdminService::instance()->apply(true);
             sysoplog('系统管理', '用户登录系统后台成功');
+
+            // 登录后更新订单状态
+            $res = (new OrdersService)->updateExpiredOrderStatus();
+            sysoplog('学生管理', $res['msg']);
+
             $this->success('登录成功', url('@admin'));
         }
     }

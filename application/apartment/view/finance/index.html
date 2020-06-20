@@ -20,8 +20,21 @@
             <div class="layui-form-item layui-inline">
                 <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
             </div>
-            <div class="layui-form-item layui-inline pull-right">已交学费总金额(¥)：{$total_amount}</div>
         </form>
+    </fieldset>
+    <fieldset>
+        <legend>各项统计</legend>
+        <div class="layui-row">
+            <span class="layui-col-md3"><b>学费总额(¥)</b>：{$total_amount['total_money']}</span>
+            <span class="layui-col-md3"><b>定金总额(¥)</b>：{$total_amount['total_front_money']}</span>
+            <span class="layui-col-md3"><b>实交费用总额(含定金)(¥)</b>：{$total_amount['total_pay_money']}</span>
+            <span class="layui-col-md3"><b>押金总额(¥)</b>：{$total_amount['total_deposit']}</span>
+        </div>
+        <div class="layui-row">
+            <span class="layui-col-md3"><b>应补缴费用总额(¥)</b>：{$total_amount['total_money'] - $total_amount['total_pay_money']}</span>
+            <span class="layui-col-md3"><b>公共水电费总额(¥)</b>：{$total_amount['total_water_money']}</span>
+            <span class="layui-col-md3"><b>实交公共水电费总额(¥)</b>：{$total_amount['total_actual_water_money']}</span>
+        </div>
     </fieldset>
     {empty name='list'}
     <blockquote class="layui-elem-quote">没 有 记 录 哦！</blockquote>

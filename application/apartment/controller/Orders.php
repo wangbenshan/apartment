@@ -459,11 +459,18 @@ class Orders extends Base
             $this->fetch();
         }else{
             // 检查必填字段
-            $back_deposit = $this->request->post('back_deposit');
-            if(!is_numeric($back_deposit)) $this->error('实退押金请输入数字');
-            if($back_deposit > $order->deposit) $this->error('实退押金不能大于所交押金');
-            $order->back_deposit = $back_deposit ?: 0;
-            if($order->deposit == $back_deposit) $order->deposit_status = 2;
+            $data = $this->request->only(['back_deposit', 'back_study_money', 'back_public_money']);
+            $validate = new OrdersValidate();
+            if (!$validate->scene('checkout')->check($data)) {
+                $this->error($validate->getError());
+            }
+            if(floatval($data['back_deposit']) > $order->deposit) $this->error('实退押金不能大于所交押金');
+            if(floatval($data['back_study_money']) > $order->total_money) $this->error('实退学费不能大于总金额');
+            if(floatval($data['back_public_money']) > $order->actual_public_water_rate) $this->error('实退水电费不能大于实缴金额');
+            $order->back_study_money = $data['back_study_money'];
+            $order->back_public_money = $data['back_public_money'];
+            $order->back_deposit = $data['back_deposit'] ?: 0;
+            if($order->deposit == $data['back_deposit']) $order->deposit_status = 2;
             $order->status = 30;
             $res = $order->save();
             if($res === true) $this->success('退房成功');

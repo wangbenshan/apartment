@@ -84,6 +84,7 @@ class RoomService extends CommonService
                 'campus'        =>  $data['campus'],
                 'floor'         =>  $data['floor'],
                 'bed_total'     =>  $data['bed_total'],
+                'face'          =>  $data['face'],
 //                'price'         =>  $data['price'],
                 'facilities'    =>  $data['facilities'],
                 'adder'         =>  session('user.id'),
@@ -125,6 +126,7 @@ class RoomService extends CommonService
                 'campus'        =>  $data['campus'],
                 'floor'         =>  $data['floor'],
                 'bed_total'     =>  $data['bed_total'],
+                'face'          =>  $data['face'],
 //                'price'         =>  $data['price'],
                 'facilities'    =>  $data['facilities'],
                 'adder'         =>  session('user.id')

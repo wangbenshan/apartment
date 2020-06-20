@@ -17,8 +17,8 @@
                 <input name="name" value='{$bed_total_text}' readonly class="layui-input">
             </label>
             <label class="layui-col-xs3">
-                <span class="color-green">房间价格（¥）</span>
-                <input name="price" value='{$vo->price}' readonly class="layui-input">
+                <span class="color-green">房间朝向（¥）</span>
+                <input name="face" value='{$vo->face == 1 ? "阳面" : "阴面"}' readonly class="layui-input">
             </label>
         </div>
         {notempty name="vo->pictures"}

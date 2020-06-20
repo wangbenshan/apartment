@@ -30,6 +30,13 @@
                     {/foreach}
                 </select>
             </label>
+            <label class="layui-col-xs2 relative">
+                <span class="color-green">朝向</span>
+                <select lay-filter="face" name="face" required class="layui-input input_ctrl" lay-verify="checkBedNumbers">
+                    <option value="0" {if isset($vo) && 0 == $vo->face}selected{/if}>阴面</option>
+                    <option value="1" {if isset($vo) && 1 == $vo->face}selected{/if}>阳面</option>
+                </select>
+            </label>
            <!-- <label class="layui-col-xs2 relative">
                 <span class="color-green">房间价格（¥）</span>
                 <input type="number" name="price" value='{$vo->price|default=""}' lay-verify="required" required placeholder="请输入房间价格" class="layui-input input_ctrl">

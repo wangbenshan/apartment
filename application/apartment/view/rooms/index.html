@@ -50,9 +50,38 @@
                 </div>
             </div>
             <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">房间朝向</label>
+                <div class="layui-input-inline">
+                    <select name="face">
+                        <option value="">全部</option>
+                        <option value="0" {if $Think.get.face === "0"}selected{/if}>阴面</option>
+                        <option value="1" {if $Think.get.face === "1"}selected{/if}>阳面</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">房间设施</label>
+                <div class="layui-input-inline">
+                    <input name="facilities" value="{$Think.get.facilities|default=''}" placeholder="请输入房间设施" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
                 <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
             </div>
         </form>
+    </fieldset>
+    <fieldset>
+        <legend>校区床位统计</legend>
+        <div class="layui-box">
+            {foreach $campus_beds as $val}
+            <div class="layui-col">
+                <b style="display:inline-block;margin-right:10px;">{$val['name']}:</b>
+                <span style="display:inline-block;width:120px;">总床位：{$val['bed_count']}</span>
+                <span style="display:inline-block;width:120px;">预定未入住：{$val['reserved'] ?: 0}</span>
+                <span style="display:inline-block;width:120px;">已入住：{$val['book_in'] ?: 0}</span>
+            </div>
+            {/foreach}
+        </div>
     </fieldset>
     {empty name='list'}
     <blockquote class="layui-elem-quote">没 有 记 录 哦！</blockquote>

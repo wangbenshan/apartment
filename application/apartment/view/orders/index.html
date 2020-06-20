@@ -79,7 +79,7 @@
                         <select name="status">
                             <option value="">全部</option>
                             <option value="0" {$Think.get.status === '0' ? 'selected' : ''}>已取消</option>
-                            <option value="10" {$Think.get.status === '10' ? 'selected' : ''}>已预订</option>
+                            <option value="10" {$Think.get.status === '10' ? 'selected' : ''}>已预订未入住</option>
                             <option value="20" {$Think.get.status === '20' ? 'selected' : ''}>已入住</option>
                             <option value="30" {$Think.get.status === '30' ? 'selected' : ''}>已退房</option>
                         </select>
@@ -130,7 +130,7 @@
             <td class='text-center nowrap'>
                 {switch $vo.status}
                 {case 0}已取消{/case}
-                {case 10}已预订{/case}
+                {case 10}已预订未入住{/case}
                 {case 20}已入住{/case}
                 {case 30}已退房{/case}
                 {case 40}已换房{/case}

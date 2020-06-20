@@ -24,6 +24,10 @@ class OrdersValidate extends Validate
 
         'deposit'                   =>  'require|number',
         'pay_money'                 =>  'require|number',
+
+        'back_reposit'              =>  'require|number',
+        'back_study_money'          =>  'require|number',
+        'back_public_money'         =>  'require|number',
     ];
 
     /**
@@ -61,6 +65,13 @@ class OrdersValidate extends Validate
         'deposit.number'         =>  '押金格式错误',
         'pay_money.require'      =>  '请输入实付金额',
         'pay_money.number'       =>  '实付总额格式错误',
+
+        'back_deposit.require'          =>  '请输入所退押金',
+        'back_deposit.number'           =>  '押金格式错误',
+        'back_study_money.require'      =>  '请输入所退学费',
+        'back_study_money.number'       =>  '学费格式错误',
+        'back_public_money.require'     =>  '请输入所退公共水电费',
+        'back_public_money.number'      =>  '水电费格式错误',
     ];
 
     public function sceneReserve()
@@ -89,5 +100,10 @@ class OrdersValidate extends Validate
     public function sceneChangeRoom()
     {
         return $this->only(['campus_id', 'room_type_num', 'room_id', 'book_in_time', 'departure_time', 'total_money']);
+    }
+
+    public function sceneCheckout()
+    {
+        return $this->only(['back_deposit', 'back_study_money', 'back_public_money']);
     }
 }
