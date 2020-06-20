@@ -189,7 +189,7 @@ class Rooms extends Base
                 ['room_id', '=', $id],
                 ['status', '=', $status]
             ])->field('id, stu_name, stu_phone, native_place, stu_id_num, school, application,
-             book_in_time, departure_time, campus, room_id, status, room_name, bed_num')->select();
+             book_in_time, departure_time, campus, room_id, status, room_name')->select();
             $this->assign('list', $list);
             $this->fetch();
         }
@@ -218,19 +218,6 @@ class Rooms extends Base
             $room_type = empty($data['type']) ? '' : $data['type'];
             $rooms = (new RoomService())->getAvailableRoomsByCampus($campus_id, $room_type);
             return json($rooms);
-        }
-    }
-
-    /**
-     * 获取房间剩余床位
-     */
-    public function getRoomRestBeds()
-    {
-        if($this->request->isPost()){
-            $room_id = $this->request->post('room_id');
-            $result = (new RoomService)->getAvailableBeds($room_id);
-            if($result['status'] == -1) $this->error($result['msg']);
-            $this->success('获取房间详情成功！', $result['data']);
         }
     }
 }

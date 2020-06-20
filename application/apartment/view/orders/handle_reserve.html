@@ -21,7 +21,7 @@
                 <input type="text" name="sex" value='{if $vo->sex == 1}女{elseif $vo->sex == 0 /}男{/if}' class="layui-input" readonly />
             </label>
         </div>
-        {if empty($vo->bed_num)}
+        {if empty($vo->room_id)}
         <div class="layui-row layui-col-space15">
             <h4 class="font-w8 font-s16 color-blue">安排房间</h4>
         </div>

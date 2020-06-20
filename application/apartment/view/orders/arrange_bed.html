@@ -16,17 +16,6 @@
                 <span class="color-green">房间</span>
                 <input type="text" name="room_name" value='{$vo->room_name}' class="layui-input" readonly />
             </label>
-            <label class="layui-col-xs3">
-                <span class="color-green">床位</span>
-                <select name="bed_num"  lay-filter="bed_num" class="layui-input input_ctrl">
-                    <option value="">请选择床位</option>
-                    {notempty name="rest_beds"}
-                    {foreach $rest_beds as $val}
-                    <option value="{$val}">{$val}号床</option>
-                    {/foreach}
-                    {/notempty}
-                </select>
-            </label>
         </div>
         {notempty name="vo->id"}<input type="hidden" name="id" value="{$vo->id}">{/notempty}
         <div class="layui-form-item text-center">

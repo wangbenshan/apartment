@@ -9,7 +9,6 @@ use app\common\model\Rooms;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use think\Db;
-use think\db\Where;
 use think\Exception;
 
 /**
@@ -143,11 +142,6 @@ class Orders extends Base
             if ($room->isEmpty()) $this->error('房间数据有误，请重试！');
             $data['room_name'] = $room->name;
 
-            // 床位号
-            if ($room->bed_total < $data['bed_num'] || $data['bed_num'] <= 0) {
-                $this->error('床位号选择错误，请重试！');
-            }
-
             if ($data['total_money'] <= 0) $this->error('学费总金额数据错误，请重试！');
 
             if ($data['pay_money'] < 0) $this->error('实付金额数据错误，请重试！');
@@ -220,14 +214,6 @@ class Orders extends Base
                 ])->findOrEmpty();
                 if ($room->isEmpty()) $this->error('房间数据有误，请重试！');
                 $data['room_name'] = $room->name;
-
-                // 床位也有可能不安排
-                if (isset($data['bed_num']) && !empty($data['bed_num'])) {
-                    // 床位号
-                    if ($room->bed_total < $data['bed_num'] || $data['bed_num'] <= 0) {
-                        $this->error('床位号选择错误，请重试！');
-                    }
-                }
             }
 
             if ($data['total_money'] <= 0) $this->error('学费总金额数据错误，请重试！');
@@ -267,8 +253,7 @@ class Orders extends Base
             $this->assign('vo', $order);
 
             // 如果未安排房间
-            // 如果未安排床位
-            if (empty($order->bed_num)) {
+            if (empty($order->room_id)) {
                 // 获取校区列表
                 $this->assign('campus', RoomService::getCampus());
                 // 获取房间规格
@@ -287,7 +272,7 @@ class Orders extends Base
             }
             return $this->fetch();
         } else {
-            $data = $this->request->only(['campus_id', 'room_type_num', 'room_id', 'bed_num', 'deposit', 'actual_rest_money', 'id']);
+            $data = $this->request->only(['campus_id', 'room_type_num', 'room_id', 'deposit', 'actual_rest_money', 'id']);
             if (empty($data['id'])) $this->error('数据错误，请重试！');
             // 获取数据
             $order = OrdersModel::get($data['id']);
@@ -296,11 +281,12 @@ class Orders extends Base
             // 检查必填字段
             $validate = new OrdersValidate();
             // 未安排房间
-            $scene = empty($order->bed_num) ? 'handleReserve' : 'handleReserveForBed';
+            $scene = empty($order->room_id) ? 'handleReserve' : 'handleReserveForRoom';
             if (!$validate->scene($scene)->check($data)) {
                 $this->error($validate->getError());
             }
 
+            // 未预定房间的情况
             if ($scene == 'handleReserve') {
                 // 校区名称
                 $campus = RoomService::getCampus($data['campus_id']);
@@ -320,11 +306,6 @@ class Orders extends Base
                 ])->findOrEmpty();
                 if ($room->isEmpty()) $this->error('房间数据有误，请重试！');
                 $data['room_name'] = $room->name;
-
-                // 床位号
-                if ($room->bed_total < $data['bed_num'] || $data['bed_num'] <= 0) {
-                    $this->error('床位号选择错误，请重试！');
-                }
             }
 
             // 未交押金
@@ -345,40 +326,6 @@ class Orders extends Base
             $res = Db::name('orders')->update($data);
             if ($res == 0) $this->error('预定订单处理失败，请重试！');
             $this->success('处理成功！');
-        }
-    }
-
-    /**
-     * 安排床位
-     * @auth true
-     */
-    public function arrangeBed()
-    {
-        $this->applyCsrfToken();
-        $id = $this->request->param('id');
-        // 获取当前订单信息
-        $order = OrdersModel::get($id);
-        if ($order->isEmpty()) $this->error('未发现当前存在订单，操作失败！');
-        if ($order->status != 20 || empty($order->room_id)) $this->error('未入住情况，不能安排床位');
-
-        if($this->request->isGet()){
-            $this->title = '安排床位';
-            $this->assign('vo', $order);
-            // 获取可入住床位
-            $result = (new RoomService)->getAvailableBeds($order->room_id);
-            $rest_beds = $result['status'] == 1 ? $result['data']['rest_beds'] : [];
-            $this->assign('rest_beds', $rest_beds);
-            $this->fetch();
-        }else{
-            $bed_num = $this->request->post('bed_num');
-            if(!is_numeric($bed_num) || $bed_num <= 0 || $bed_num > $order->room_type_num){
-                $this->error('床位数据有误，请重试！');
-            }
-
-            $order->bed_num = $bed_num;
-            $res = $order->save();
-            if($res === true) $this->success('安排床位成功！');
-            $this->error('安排床位失败！');
         }
     }
 
@@ -567,14 +514,6 @@ class Orders extends Base
                     if($room->isEmpty()) $this->error('房间【'.$val['room_name'].'】暂未添加到系统当中！');
                     if($room->status == 0) $this->error('房间【'.$val['room_name'].'】处于不可用状态！');
                     $val['room_id'] = $room->id;
-
-                    // 床位号
-                    if(isset($val['bed_num']) && !empty($val['bed_num'])){
-                        if($val['bed_num'] <= 0 || $val['bed_num'] > $room->bed_total){
-                            $this->error($val['stu_name'].'同学的床位号设置有误！');
-                        }
-                        $val['bed_num'] = isset($val['bed_num']) && !empty($val['bed_num']) ? $val['bed_num'] : 0;
-                    }
                 }else{
                     // 未安排房间
                     $val['room_name'] = '';
@@ -650,10 +589,9 @@ class Orders extends Base
             $sheet->setCellValueByColumnAndRow(16, 1, '电费周期');
             $sheet->setCellValueByColumnAndRow(17, 1, '校区');
             $sheet->setCellValueByColumnAndRow(18, 1, '房间');
-            $sheet->setCellValueByColumnAndRow(19, 1, '床位');
-            $sheet->setCellValueByColumnAndRow(20, 1, '状态');
-            $sheet->setCellValueByColumnAndRow(21, 1, '备注');
-            $sheet->setCellValueByColumnAndRow(22, 1, '业务员');
+            $sheet->setCellValueByColumnAndRow(19, 1, '状态');
+            $sheet->setCellValueByColumnAndRow(20, 1, '备注');
+            $sheet->setCellValueByColumnAndRow(21, 1, '业务员');
 
             foreach ($orders as $k => $v){
                 $row = $k + 2;
@@ -677,7 +615,6 @@ class Orders extends Base
                 $sheet->setCellValueByColumnAndRow(16, $row, $v->power_rate_cycle);
                 $sheet->setCellValueByColumnAndRow(17, $row, $v->campus);
                 $sheet->setCellValueByColumnAndRow(18, $row, $v->room_name);
-                $sheet->setCellValueByColumnAndRow(19, $row, $v->bed_num ? $v->bed_num.'号床' : '未安排');
                 switch($v->status){
                     case 0: $status = '已取消';break;
                     case 10: $status = '已预定';break;
@@ -685,9 +622,9 @@ class Orders extends Base
                     case 30: $status = '已退房';break;
                     default: $status = '未知';
                 }
-                $sheet->setCellValueByColumnAndRow(20, $row, $status);
-                $sheet->setCellValueByColumnAndRow(21, $row, $v->comment);
-                $sheet->setCellValueByColumnAndRow(22, $row, $v->salesman);
+                $sheet->setCellValueByColumnAndRow(19, $row, $status);
+                $sheet->setCellValueByColumnAndRow(20, $row, $v->comment);
+                $sheet->setCellValueByColumnAndRow(21, $row, $v->salesman);
             }
 
             $count = count($orders);

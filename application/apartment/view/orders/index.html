@@ -97,7 +97,7 @@
     <table class="layui-table margin-top-10" lay-skin="line">
         <thead>
         <tr>
-            <th class='text-center nowrap'>校区 / 规格 / 房间【床号】</th>
+            <th class='text-center nowrap'>校区 / 规格 / 房间</th>
             <th class="text-center nowrap">姓名</th>
             <th class="text-center nowrap">联系方式</th>
             <th class="text-center nowrap">性别</th>
@@ -117,7 +117,7 @@
         <tr>
             <td class='text-center'>
                 {$vo.campus} / {$vo.room_type} / {if $vo.room_name == '' || $vo.room_name == '未安排'}<span class="color-red">未安排</span>
-                {else /}{$vo.room_name}【{if $vo.bed_num == 0}<span class="color-red">未安排</span>{else /}{$vo.bed_num}号床{/if}】
+                {else /}{$vo.room_name}
                 {/if}</td>
             <td class='text-center'>{$vo.stu_name}</td>
             <td class='text-center'>{$vo.stu_phone}</td>
@@ -153,13 +153,8 @@
                 <a class="layui-btn layui-btn-xs" data-open='{:url("apartment/orders/change")}?id={$vo.id}'>调换房间</a>
                 {/if}
                 {if $vo.status == 20 && !empty($vo.room_id) && auth("apartment/orders/checkout")}
-                    {if empty($vo.bed_num) && auth("apartment/orders/arrangeBed")}
-                    <span class="text-explode">|</span>
-                    <a class="layui-btn layui-btn-xs layui-btn-normal" data-modal='{:url("apartment/orders/arrangeBed")}?id={$vo.id}'>安排床位</a>
-                    {else /}
                     <span class="text-explode">|</span>
                     <a class="layui-btn layui-btn-xs layui-btn-warm" data-modal='{:url("apartment/orders/checkout")}?id={$vo.id}'>退 房</a>
-                    {/if}
                 {/if}
             </td>
         </tr>

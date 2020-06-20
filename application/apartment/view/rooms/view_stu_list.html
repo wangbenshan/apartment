@@ -16,7 +16,6 @@
             <th class='text-center nowrap'>离店时间</th>
             <th class="text-center nowrap">校区</th>
             <th class="text-center nowrap">房间</th>
-            <th class="text-center nowrap">床位</th>
             <th></th>
         </tr>
         </thead>
@@ -34,18 +33,12 @@
             <td class='text-center'>{$vo['departure_time']}</td>
             <td class='text-center'>{$vo['campus']}</td>
             <td class='text-center'>{$vo['room_name']}</td>
-            <td class='text-center'>{:$vo['bed_num'] > 0 ? $vo['bed_num'].'号床' : '<span class="color-red">未安排</span>'}</td>
             <td class='text-center nowrap'>
                 {if $vo.room_id > 0 && auth("apartment/orders/change")}
                     <a class="layui-btn layui-btn-xs" data-open='{:url("apartment/orders/change")}?id={$vo.id}'>调换房间</a>
                 {/if}
-                {if empty($vo.bed_num)}
-                    {if $vo.status == 10 && auth("apartment/orders/handleReserve")}
+                {if empty($vo.room_id) && $vo.status == 10 && auth("apartment/orders/handleReserve")}
                     <a class="layui-btn layui-btn-xs layui-btn-normal" data-modal='{:url("apartment/orders/handleReserve")}?id={$vo.id}'>处理预定</a>
-                    {/if}
-
-                    {if $vo.status == 20 && auth("apartment/orders/arrangeBed")}
-                    <a class="layui-btn layui-btn-xs layui-btn-normal" data-modal='{:url("apartment/orders/arrangeBed")}?id={$vo.id}'>安排床位</a>
                     {/if}
                 {/if}
             </td>
