@@ -69,9 +69,7 @@ class Rooms extends Base
                 ->field('c.id, c.name, co.total, co.reserved, co.book_in')
                 ->where($where3)->select();
             foreach($campus_beds as $key => $val){
-                if(isset($campus_bed_total[$val['id']])){
-                    $campus_beds[$key]['bed_count'] = $campus_bed_total[$val['id']]['bed_count'];
-                }
+                $campus_beds[$key]['bed_count'] = isset($campus_bed_total[$val['id']]) ? $campus_bed_total[$val['id']]['bed_count'] : 0;
             }
             $this->assign('campus_beds', $campus_beds);
 
