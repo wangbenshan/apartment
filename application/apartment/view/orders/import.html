@@ -59,6 +59,7 @@
                 case '已取消':
                     order.status = 0;break;
                 case '已预订':
+                case '已预定':
                 case '已预订未入住':
                     order.status = 10;break;
                 case '已入住':
@@ -120,6 +121,10 @@
             return false;
         }
         let data = initData(excelData);
+        if(!data){
+            $.msg.error('上传的文件内容有误，请确认！');
+            return false;
+        }
         $.ajax({
             url: "{:request()->url()}",
             type: 'post',

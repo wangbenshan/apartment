@@ -99,7 +99,7 @@
         <tr>
             <th class='text-center nowrap'>校区 / 规格 / 房间</th>
             <th class="text-center nowrap">姓名</th>
-            <th class="text-center nowrap">联系方式</th>
+            <th class="text-center nowrap">班型</th>
             <th class="text-center nowrap">性别</th>
             <th class="text-center nowrap">租期</th>
             <th class="text-center nowrap">入住时间 ~ 到期时间</th>
@@ -119,8 +119,8 @@
                 {$vo.campus} / {$vo.room_type} / {if $vo.room_name == '' || $vo.room_name == '未安排'}<span class="color-red">未安排</span>
                 {else /}{$vo.room_name}
                 {/if}</td>
-            <td class='text-center'>{$vo.stu_name}</td>
-            <td class='text-center'>{$vo.stu_phone}</td>
+            <td class='text-center' style="width:80px;">{$vo.stu_name}</td>
+            <td class='text-center'>{$vo.project}</td>
             <td class='text-center'>{$vo.sex == 1 ? '女' : '男'}</td>
             <td class='text-center'>{$vo.lease_term}</td>
             <td class='text-center'>{$vo.book_in_time}<div> ~ </div>{$vo.departure_time}</td>

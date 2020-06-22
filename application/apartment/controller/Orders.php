@@ -599,7 +599,7 @@ class Orders extends Base
             $sheet->setCellValueByColumnAndRow(2, 1, '联系方式');
             $sheet->setCellValueByColumnAndRow(3, 1, '性别');
             $sheet->setCellValueByColumnAndRow(4, 1, '学校');
-            $sheet->setCellValueByColumnAndRow(5, 1, '项目');
+            $sheet->setCellValueByColumnAndRow(5, 1, '班型');
             $sheet->setCellValueByColumnAndRow(6, 1, '房间');
             $sheet->setCellValueByColumnAndRow(7, 1, '租期');
             $sheet->setCellValueByColumnAndRow(8, 1, '入住时间');
