@@ -40,6 +40,8 @@ class Rooms extends Base
             $this->assign('beds_config', array_column(RoomService::getRoomType(), null, 'num'));
 
             $where1 = [];       // orders表条件
+            $where1[] = ['is_deleted', '<>', 1];
+
             $where2 = [];       // rooms表条件
             $where3 = [];       // campus表条件
             if(empty($this->campus)){
@@ -212,6 +214,7 @@ class Rooms extends Base
 
             $list = \app\common\model\Orders::where([
                 ['room_id', '=', $id],
+                ['is_deleted', '=', 0],
                 ['status', '=', $status]
             ])->field('id, stu_name, stu_phone, native_place, stu_id_num, school, application,
              book_in_time, departure_time, campus, room_id, status, room_name')->select();
@@ -227,7 +230,8 @@ class Rooms extends Base
     {
         $orders = \app\common\model\Orders::where([
             ['status', 'in', [10, 20]],
-            ['room_id', '=', $id]
+            ['room_id', '=', $id],
+            ['is_deleted', '=', 0]
         ])->select();
         return $orders->isEmpty();
     }

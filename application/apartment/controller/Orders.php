@@ -55,6 +55,7 @@ class Orders extends Base
 
             $where = [];
             $where[] = ['status', '<>', 40];
+            $where[] = ['is_deleted', '=', 0];
             if(empty($this->campus)){
                 // 校区列表
                 $this->assign('campus', RoomService::getCampus());
@@ -91,9 +92,26 @@ class Orders extends Base
         if ($this->request->isGet()) {
             $this->title = '订单详情';
             $order = OrdersModel::get($this->request->get('id'));
+            if($order->isEmpty()) $this->error('数据不存在！');
+            if($order->is_deleted == 1) $this->error('已删除！');
             $this->assign('vo', $order);
             $this->fetch();
         }
+    }
+
+    /**
+     * 删除订单
+     * @auth true
+     */
+    public function remove()
+    {
+        $this->applyCsrfToken();
+        $order_id = $this->request->param('id');
+        $order = OrdersModel::get($order_id);
+        if($order->isEmpty()) $this->error('该订单不存在！');
+        if($order->is_deleted == 1) $this->error('该订单已被删除，请不要重复操作！');
+
+        $this->_save($this->table, ['is_deleted' => '1'], '', ['id' => $order_id]);
     }
 
     /**
@@ -566,7 +584,7 @@ class Orders extends Base
         $this->applyCsrfToken();
         if($this->request->isGet()){
             // 获取订单列表
-            $orders = OrdersModel::select();
+            $orders = OrdersModel::where('is_deleted', 0)->select();
             if($orders->isEmpty()) $this->error('暂无订单，导出失败！');
 
             $spreadsheet = new Spreadsheet();
