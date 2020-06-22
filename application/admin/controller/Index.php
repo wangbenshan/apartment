@@ -61,8 +61,8 @@ class Index extends Controller
         $this->reserved_count = Db::name('orders')->where('status', 10)->count();
         // 当前已入住数量
         $this->book_in_count = Db::name('orders')->where('status', 20)->count();
-        // 当前所有有效订单总金额
-        $this->total_money_sum = number_format(Db::name('orders')->where('status', 'in', [10, 20])->sum('total_money'), 2, '.', ',');
+//        // 当前所有有效订单总金额
+//        $this->total_money_sum = number_format(Db::name('orders')->where('status', 'in', [10, 20])->sum('total_money'), 2, '.', ',');
 
         $this->fetch();
     }
