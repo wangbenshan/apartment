@@ -79,7 +79,7 @@ class Orders extends Base
             }else{
                 $query_obj->like('room_name,stu_name,stu_phone,salesman');
             }
-            $query_obj->equal('campus_id#campus,room_type_num#room_type,status')->page();
+            $query_obj->equal('campus_id#campus,room_type_num#room_type,sex,status,public_water_rate')->page();
         }
     }
 
@@ -182,6 +182,79 @@ class Orders extends Base
             $res = OrdersModel::create($data);
             if ($res->isEmpty()) $this->error('创建订单失败，请重试！');
             $this->success('下单成功，顾客可以入住房间啦！');
+        }
+    }
+
+    /**
+     * 编辑导入的订单
+     * @auth true
+     */
+    public function edit()
+    {
+        $this->applyCsrfToken();
+        $order = OrdersModel::get($this->request->param('id'));
+        if($order->isEmpty()) $this->error('该订单不存在');
+        if($order->status != 10 && $order->status != 20) $this->error('非预定和非入住订单暂不能修改！');
+//        if($order->data_from != 1) $this->error('非导入的订单暂不能修改！');
+
+        if ($this->request->isGet()) {
+            $this->title = '修改订单';
+            // 获取校区列表
+            $this->assign('campus', RoomService::getCampus());
+            // 获取房间规格
+            $this->assign('type', RoomService::getRoomType());
+            // 获取房间
+            $rooms = (new RoomService())->getAvailableRoomsByCampus($order->campus_id, $order->room_type_num);
+            $this->assign('av_rooms', $rooms);
+
+            $this->assign('vo', $order);
+
+            return $this->fetch('form');
+        } else {
+            $data = $this->request->only(['campus_id', 'room_type_num', 'room_id', 'stu_name', 'sex', 'stu_phone', 'stu_id_num',
+                'project', 'school', 'application', 'native_place', 'lease_term', 'book_in_time', 'departure_time',
+                'public_water_rate', 'actual_public_water_rate', 'power_rate_cycle', 'total_money', 'deposit', 'pay_money', 'comment']);
+            // 检查必填字段
+            $validate = new OrdersValidate();
+            if (!$validate->scene('edit')->check($data)) {
+                $this->error($validate->getError());
+            }
+
+            // 入住时间 和 离店时间 比较
+            if (strtotime($data['book_in_time']) >= strtotime($data['departure_time'])) {
+                $this->error('离店时间必须大于入住时间');
+            }
+
+            // 校区名称
+            $campus = RoomService::getCampus($data['campus_id']);
+            if (empty($campus)) $this->error('校区数据有误，请重试！');
+            $data['campus'] = $campus['name'];
+
+            // 房间规格数字
+            $room_type = RoomService::getRoomType($data['room_type_num']);
+            if (empty($room_type)) $this->error('房间规格数据有误，请重试！');
+            $data['room_type'] = $room_type;
+
+            // 房间名称
+            if(!empty($data['room_id'])){
+                $room = Rooms::where([
+                    ['id', '=', $data['room_id']],
+                    ['campus', '=', $data['campus_id']],
+                    ['bed_total', '=', $data['room_type_num']]
+                ])->findOrEmpty();
+                if ($room->isEmpty()) $this->error('房间数据有误，请重试！');
+                $data['room_name'] = $room->name;
+            }
+
+            if ($data['total_money'] <= 0) $this->error('学费总金额数据错误，请重试！');
+
+            if ($data['pay_money'] < 0) $this->error('实付金额数据错误，请重试！');
+
+            if ($data['deposit'] < 0) $this->error('押金数据错误，请重试！');
+
+            $res = Db::name('orders')->where('id', $order->id)->data($data)->update();
+            if ($res === false) $this->error('修改订单失败，请重试！');
+            $this->success('修改订单成功！');
         }
     }
 
@@ -290,7 +363,9 @@ class Orders extends Base
             }
             return $this->fetch();
         } else {
-            $data = $this->request->only(['campus_id', 'room_type_num', 'room_id', 'deposit', 'actual_rest_money', 'id']);
+            $data = $this->request->only(['campus_id', 'room_type_num', 'room_id',
+                'public_water_rate', 'actual_public_water_rate', 'power_rate_cycle',
+                'deposit', 'actual_rest_money', 'id']);
             if (empty($data['id'])) $this->error('数据错误，请重试！');
             // 获取数据
             $order = OrdersModel::get($data['id']);
@@ -298,8 +373,10 @@ class Orders extends Base
             if ($order->status != 10) $this->error('订单为非预定状态，操作失败！');
             // 检查必填字段
             $validate = new OrdersValidate();
-            // 未安排房间
+
             $scene = empty($order->room_id) ? 'handleReserve' : 'handleReserveForRoom';
+            if(!is_numeric($data['deposit'])) $this->error('押金格式错误');
+            $data['deposit'] = floatval($data['deposit']);
             if (!$validate->scene($scene)->check($data)) {
                 $this->error($validate->getError());
             }
@@ -328,8 +405,11 @@ class Orders extends Base
 
             // 未交押金
             if ($data['deposit'] < 0) $this->error('押金数据错误，请重试！');
+            $data['deposit_status'] = 1;
 
-            if ($data['actual_rest_money'] != $order->rest_money) $this->error('实交尾款要和应该尾款一致，请重试！');
+            // 应交尾款为 0
+            $rest_money = $order->rest_money == 0 ? $order->total_money - $order->front_money : $order->rest_money;
+//            if ($data['actual_rest_money'] != $rest_money) $this->error('实交尾款要和应该尾款一致，请重试！');
 
             // 订单状态
             $data['status'] = 20;   // 已付款，已入住
@@ -379,7 +459,7 @@ class Orders extends Base
             }
 
             // 入住时间 和 离店时间 比较
-            if (strtotime($data['book_in_time']) >= strtotime($data['department_time'])) {
+            if (strtotime($data['book_in_time']) >= strtotime($data['departure_time'])) {
                 $this->error('离店时间必须大于入住时间');
             }
 
@@ -431,14 +511,14 @@ class Orders extends Base
                     'add_time' => date('Y-m-d H:i:s'),
                     'pay_time' => date('Y-m-d H:i:s'),
                     'front_money' => $order->front_money,
-                    'rest_money' => $order->rest_money,
-                    'actual_rest_money' => $order->actual_rest_money,
+                    'rest_money' => 0,
+                    'actual_rest_money' => 0,
                     'deposit' => $order->deposit,
                     'deposit_status' => $order->deposit_status,
                     'total_money' => $data['total_money'],
+                    'pay_money' => $data['total_money'],
                     'public_water_rate' => $order->public_water_rate,
                     'power_rate_cycle' => $order->power_rate_cycle,
-                    'pay_money' => $data['total_money'],
                     'status' => $order_status,
                     'comment' => $order->comment,
                     'salesman_id' => session('user.id'),
@@ -450,7 +530,7 @@ class Orders extends Base
                 if ($new_order->isEmpty()) throw new Exception('创建新订单失败，请重试！');
 
                 Db::commit();
-                $this->success('调换新房间成功！', url('@apartment/orders/index'));
+                $this->success('调换新房间成功！');
             } catch (Exception $exception) {
                 Db::rollback();
                 $this->error($exception->getMessage());
@@ -497,6 +577,43 @@ class Orders extends Base
     }
 
     /**
+     * 修改退费
+     * @auth true
+     */
+    public function editCheckOut()
+    {
+        $this->applyCsrfToken();
+        $id = $this->request->param('id');
+        $order = OrdersModel::get($id);
+        if($order->isEmpty()) $this->error('订单信息错误，请重试！');
+        if($order->status != 30) $this->error('非已退房状态不能修改退费！');
+
+        if($this->request->isGet()){
+            $this->title = '修改退费';
+
+            $this->assign('vo', $order);
+            $this->fetch();
+        }else{
+            $data = $this->request->only(['edit_back_study_money', 'edit_back_public_money', 'edit_back_deposit']);
+            if($data['edit_back_study_money'] !== ''){
+                if(floatval($data['edit_back_study_money']) > $order->total_money) $this->error('实退学费不能大于总金额');
+                $order->back_study_money = $data['edit_back_study_money'];
+            }
+            if($data['edit_back_public_money'] !== ''){
+                if(floatval($data['edit_back_public_money']) > $order->actual_public_water_rate) $this->error('实退水电费不能大于实缴金额');
+                $order->back_public_money = $data['edit_back_public_money'];
+            }
+            if($data['edit_back_deposit'] !== ''){
+                if(floatval($data['edit_back_deposit']) > $order->deposit) $this->error('实退水电费不能大于实缴金额');
+                $order->back_deposit = $data['edit_back_deposit'];
+            }
+            $res = $order->save();
+            if($res === true) $this->success('修改退费成功');
+            $this->error('修改退费失败');
+        }
+    }
+
+    /**
      * 导入学生Excel
      * @auth true
      */
@@ -517,6 +634,10 @@ class Orders extends Base
             $campus = RoomService::getCampus()->toArray();
             $campus_names = array_column($campus, 'name');
             $campus = array_column($campus, 'name', 'id');
+
+            $orderModel = new OrdersModel();
+
+            $update_data = [];
 
             foreach($data as &$val){
                 // 获取房间规格数字
@@ -545,8 +666,6 @@ class Orders extends Base
                     if($val['status'] != '10') $this->error($val['stu_name'].'同学的订单状态错误，订单状态【预定未安排】与实际不符！');
                 }
 
-                $val['add_time'] = date('Y-m-d H:i:s');
-
                 // 没有押金
                 if(!isset($val['deposit']) || $val['deposit'] <= 0){
                     $val['deposit_status'] = 0;
@@ -563,14 +682,41 @@ class Orders extends Base
                 // 实付金额
                 $front_money = isset($val['front_money']) ? $val['front_money'] : 0;
                 $actual_rest_money = isset($val['actual_rest_money']) ? $val['actual_rest_money'] : 0;
+                // 应交金额
+                $val['rest_money'] = isset($val['rest_money']) ? $val['rest_money'] : ($val['total_money'] - $front_money);
                 $val['pay_money'] = $front_money + $actual_rest_money;
+
+                // 数据来源：excel导入
+                $val['data_from'] = 1;
+
+                // 查重
+                $order_tmp = $orderModel->where($val)->find();
+                if(!empty($order_tmp)){
+                    // 重复，则覆盖，取消之前的再新增
+                    $update_data[] = $order_tmp['id'];
+                }
+
+                $val['add_time'] = date('Y-m-d H:i:s');
             }
-            // 导入学生信息
-            $res = (new OrdersModel)->saveAll($data);
-            if($res->isEmpty()){
-                $this->error('导入失败，请重试');
-            }else{
-                $this->success('导入成功！');
+            Db::startTrans();
+            try{
+                if(!empty($update_data)){
+                    // 删除已经存在的数据
+                    $res = $orderModel->where('id', 'in', $update_data)->data(['is_deleted' => 1])->update();
+                    if($res === false) throw new Exception('覆盖旧数据失败，请重试！');
+                }
+
+                // 新增数据
+                $res = $orderModel->saveAll($data);
+                if($res->isEmpty()) throw new Exception('导入数据失败，请重试！');
+
+                Db::commit();
+                $this->success('导入数据成功');
+
+            }catch(Exception $e){
+                Db::rollback();
+                $this->error($e->getMessage());
+                $this->error('导入失败，请重试！');
             }
         }
     }

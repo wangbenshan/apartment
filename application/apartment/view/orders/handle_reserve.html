@@ -1,4 +1,4 @@
-<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+<form class="layui-form layui-card" data-auto="true" method="post" autocomplete="off" id="handle_form">
     <div class="layui-card-body think-box-shadow padding-left-40">
         <div class="layui-row layui-col-space15">
             <h4 class="font-w8 font-s16 color-blue">学生信息</h4>
@@ -32,16 +32,30 @@
         </div>
         <div class="layui-form-item layui-row layui-col-space15">
             <label class="layui-col-xs3">
+                <span class="color-green">公共区域水电费（¥）</span>
+                <input type="number" name="public_water_rate" value='{$vo->public_water_rate|default=""}' class="layui-input" placeholder="请输入公共区域水电费" />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">公共水电费实缴（¥）</span>
+                <input type="number" name="actual_public_water_rate" value='{$vo->actual_public_water_rate|default=""}' class="layui-input" placeholder="请输入公共水电费实缴金额" />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">电费周期</span>
+                <input name="power_rate_cycle" value='{$vo->power_rate_cycle|default=""}' class="layui-input" placeholder="请输入电费周期" />
+            </label>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs3">
                 <span class="color-green">学费总金额（¥）</span>
-                <input type="number" name="total_money" value='{$vo->total_money|default=""}' class="layui-input" readonly />
+                <input type="text" name="total_money" value='{$vo->total_money|default=""}' class="layui-input" readonly />
             </label>
             <label class="layui-col-xs3">
                 <span class="color-green">已交定金（¥）</span>
-                <input type="number" name="front_money" value='{$vo->front_money|default=""}' class="layui-input" readonly />
+                <input type="text" name="front_money" value='{$vo->front_money|default=""}' class="layui-input" readonly />
             </label>
             <label class="layui-col-xs3">
                 <span class="color-green">应交尾款（¥）</span>
-                <input type="number" name="rest_money" value='{$vo->rest_money|default=""}' class="layui-input" readonly />
+                <input type="text" name="rest_money" value='{if $vo->rest_money == 0}{:number_format($vo->total_money - $vo->front_money, 2, ".", "")}{else /}0.00{/if}' class="layui-input" readonly />
             </label>
         </div>
         <div class="layui-form-item layui-row layui-col-space15">
@@ -51,17 +65,34 @@
             </label>
             <label class="layui-col-xs3">
                 <span class="color-green">实交尾款（¥）</span>
-                <input type="number" name="actual_rest_money" value='{$vo->actual_rest_money|default=""}' class="layui-input" required placeholder="请输入实交尾款" />
+                <input type="number" name="actual_rest_money" value='{$vo->actual_rest_money|default=""}' lay-verify="checkRestMoney" class="layui-input" required placeholder="请输入实交尾款" />
             </label>
         </div>
         {notempty name="vo->id"}<input type="hidden" name="id" value="{$vo->id}">{/notempty}
         <div class="layui-form-item text-center">
             <button class="layui-btn layui-btn-danger" type="button" data-confirm="确定要取消修改吗？" data-close="">取消编辑</button>
-            <button class="layui-btn" type='submit'>保存数据</button>
+            <button class="layui-btn" lay-submit lay-filter="*">保存数据</button>
         </div>
     </div>
 </form>
 
 <script>
     form.render();
+
+    form.on('submit(*)', function(data){
+        if(data.field.actual_rest_money != data.field.rest_money){
+            let index = $.msg.confirm('实交尾款和应交尾款不一致，确定要提交吗？', function(){
+                $.msg.close(index);
+                $.post('{:request()->url()}', $('#handle_form').serialize(), function(data){
+                    if(data.code == 0){
+                        $.msg.error(data.info);
+                    }else{
+                        $.msg.success(data.info);
+                        history.go(0);
+                    }
+                });
+            })
+        }
+        return false;
+    });
 </script>

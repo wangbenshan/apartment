@@ -14,8 +14,8 @@
         <span class="color-green">性别</span>
         <select name="sex" required class="layui-input">
             <option value="">请选择性别</option>
-            <option value="0" {if (isset($vo->sex) && $vo->stu_name == '0')}selected{/if}>男</option>
-            <option value="1" {if (isset($vo->sex) && $vo->stu_name == '1')}selected{/if}>女</option>
+            <option value="0" {if (isset($vo->sex) && $vo->sex == '0')}selected{/if}>男</option>
+            <option value="1" {if (isset($vo->sex) && $vo->sex == '1')}selected{/if}>女</option>
         </select>
     </label>
     <label class="layui-col-xs3">
@@ -24,7 +24,7 @@
     </label>
     <label class="layui-col-xs3">
         <span class="color-green">身份证号</span>
-        <input name="stu_id_num" value='{$vo->stu_id_num|default=""}' maxlength="18" class="layui-input" required placeholder="请输入身份证号" />
+        <input name="stu_id_num" value='{$vo->stu_id_num|default=""}' maxlength="18" class="layui-input" {if request()->action() != 'edit'}required{/if} placeholder="请输入身份证号" />
     </label>
 </div>
 <div class="layui-form-item layui-row layui-col-space15">
@@ -51,7 +51,7 @@
 <div class="layui-form-item layui-row layui-col-space15">
     <label class="layui-col-xs3">
         <span class="color-green">租期</span>
-        <input type="text" class="layui-input" name="lease_term" value="{$vo->lease_term|default=''}" required placeholder="请输入租期" />
+        <input type="text" class="layui-input" name="lease_term" value="{$vo->lease_term|default=''}" {if request()->action() != 'edit'}required{/if} placeholder="请输入租期" />
     </label>
     <label class="layui-col-xs3">
         <span class="color-green">入住时间</span>

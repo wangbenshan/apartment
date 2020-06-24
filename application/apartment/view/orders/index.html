@@ -2,7 +2,7 @@
 
 {block name="button"}
 
-{if auth("import")}
+{if auth("export")}
 <button data-href='{:url("export")}' data-title="导出订单" class='layui-btn layui-btn-sm layui-btn-primary'>导出订单</button>
 {/if}
 
@@ -64,6 +64,22 @@
                     <input name="stu_name" value="{$Think.get.stu_name|default=''}" placeholder="请输入学生姓名" class="layui-input">
                 </div>
             </div>
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">公共水电费</label>
+                <div class="layui-input-inline">
+                    <input name="public_water_rate" value="{$Think.get.public_water_rate|default=''}" placeholder="请输入公共水电费" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">学生性别</label>
+                <div class="layui-input-inline">
+                    <select name="sex">
+                        <option value="">全部</option>
+                        <option value="0" {if $Think.get.sex === '0'}selected{/if}>男</option>
+                        <option value="1" {if $Think.get.sex === '1'}selected{/if}>女</option>
+                    </select>
+                </div>
+            </div>
             {empty name="is_salesman"}
             <div class="layui-form-item layui-inline">
                 <label class="layui-form-label">业务员</label>
@@ -98,8 +114,8 @@
         <thead>
         <tr>
             <th class='text-center nowrap'>校区 / 规格 / 房间</th>
-            <th class="text-center nowrap">姓名</th>
-            <th class="text-center nowrap">班型</th>
+            <th class="text-center nowrap" style="width:60px;">姓名</th>
+            <th class="text-center nowrap" style="width:80px;">班型</th>
             <th class="text-center nowrap">性别</th>
             <th class="text-center nowrap">租期</th>
             <th class="text-center nowrap">入住时间 ~ 到期时间</th>
@@ -119,7 +135,7 @@
                 {$vo.campus} / {$vo.room_type} / {if $vo.room_name == '' || $vo.room_name == '未安排'}<span class="color-red">未安排</span>
                 {else /}{$vo.room_name}
                 {/if}</td>
-            <td class='text-center' style="width:80px;">{$vo.stu_name}</td>
+            <td class='text-center'>{$vo.stu_name}</td>
             <td class='text-center'>{$vo.project}</td>
             <td class='text-center'>{$vo.sex == 1 ? '女' : '男'}</td>
             <td class='text-center'>{$vo.lease_term}</td>
@@ -147,6 +163,16 @@
                 {if auth("apartment/orders/view")}
                 <span class="text-explode">|</span>
                 <a class="layui-btn layui-btn-xs layui-btn-primary" data-open='{:url("apartment/orders/view")}?id={$vo.id}'>查 看</a>
+                {/if}
+                {/* 退房的可以修改金额 $vo.data_from == 1 &&  */}
+                {if auth("apartment/orders/edit")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-xs" data-open='{:url("apartment/orders/edit")}?id={$vo.id}'>编 辑</a>
+                {/if}
+                {/* 退房的可以修改金额 */}
+                {if $vo.status == 30 && auth("apartment/orders/editCheckOut")}
+                <span class="text-explode">|</span>
+                <a class="layui-btn layui-btn-xs layui-btn-normal" data-modal='{:url("apartment/orders/editCheckOut")}?id={$vo.id}'>修改退费</a>
                 {/if}
                 {if $vo.status == 10 && auth("apartment/orders/handleReserve")}
                 <span class="text-explode">|</span>

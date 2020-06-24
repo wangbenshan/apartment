@@ -1,5 +1,11 @@
 {extend name='main'}
 
+{block name="button"}
+{if auth("export")}
+<button data-href='{:url("export")}' data-title="导出财务报表" class='layui-btn layui-btn-sm layui-btn-primary'>导出财务报表</button>
+{/if}
+{/block}
+
 {block name="content"}
 <div class="think-box-shadow">
     <fieldset>
@@ -18,6 +24,18 @@
                 </div>
             </div>
             <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">学生姓名</label>
+                <div class="layui-input-inline">
+                    <input name="stu_name" value="{$Think.get.stu_name|default=''}" placeholder="请输入学生姓名" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">业务员</label>
+                <div class="layui-input-inline">
+                    <input name="salesman" value="{$Think.get.salesman|default=''}" placeholder="请输入业务员姓名" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
                 <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
             </div>
         </form>
@@ -25,15 +43,16 @@
     <fieldset>
         <legend>各项统计</legend>
         <div class="layui-row">
-            <span class="layui-col-md3"><b>学费总额(¥)</b>：{$total_amount['total_money']}</span>
-            <span class="layui-col-md3"><b>定金总额(¥)</b>：{$total_amount['total_front_money']}</span>
-            <span class="layui-col-md3"><b>实交费用总额(含定金)(¥)</b>：{$total_amount['total_pay_money']}</span>
-            <span class="layui-col-md3"><b>押金总额(¥)</b>：{$total_amount['total_deposit']}</span>
+            <span class="layui-col-md3"><b>学费总额</b>：{:number_format($total_amount['total_money'], 2)}</span>
+            <span class="layui-col-md3"><b>定金总额</b>：{:number_format($total_amount['total_front_money'], 2)}</span>
+            <span class="layui-col-md3"><b>实交费用总额(含定金)</b>：{:number_format($total_amount['total_pay_money'], 2)}</span>
+            <span class="layui-col-md3"><b>押金总额</b>：{:number_format($total_amount['total_deposit'])}</span>
         </div>
         <div class="layui-row">
-            <span class="layui-col-md3"><b>应补缴费用总额(¥)</b>：{$total_amount['total_money'] - $total_amount['total_pay_money']}</span>
-            <span class="layui-col-md3"><b>公共水电费总额(¥)</b>：{$total_amount['total_water_money']}</span>
-            <span class="layui-col-md3"><b>实交公共水电费总额(¥)</b>：{$total_amount['total_actual_water_money']}</span>
+            <span class="layui-col-md3"><b>应补缴费用总额</b>：{:number_format($total_amount['total_money'] - $total_amount['total_pay_money'], 2)}</span>
+            <span class="layui-col-md3"><b>公共水电费总额</b>：{:number_format($total_amount['total_water_money'], 2)}</span>
+            <span class="layui-col-md3"><b>实交公共水电费总额</b>：{:number_format($total_amount['total_actual_water_money'], 2)}</span>
+            <span class="layui-col-md3"><b>退费总额</b>：{:number_format($total_back, 2)}</span>
         </div>
     </fieldset>
     {empty name='list'}

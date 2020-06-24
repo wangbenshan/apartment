@@ -19,7 +19,7 @@
     </label>
     <label class="layui-col-xs3">
         <span class="color-green">房间{if request()->action() == 'reserve'}<i class="color-red">（预定，可以不选）</i>{/if}</span>
-        <select name="room_id"  lay-filter="room_id" {if request()->action() != 'reserve'}required{/if} class="layui-input input_ctrl">
+        <select name="room_id"  lay-filter="room_id" {if request()->action() != 'reserve' && request()->action() != 'edit'}required{/if} class="layui-input input_ctrl">
             <option value="">请选择房间</option>
             {notempty name="av_rooms"}
             {foreach $av_rooms as $room}

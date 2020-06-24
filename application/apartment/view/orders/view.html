@@ -146,6 +146,22 @@
                 <input name="salesman" value='{$vo->salesman|default=""}' readonly class="layui-input">
             </label>
         </div>
+        {if $vo->status == 30}
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs3">
+                <span class="color-green">实退学费</span>
+                <input type="number" name="back_study_money" value='{$vo->back_study_money|default="0.00"}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">实退公共水电费</span>
+                <input type="number" name="back_public_money" value='{$vo->back_public_money|default="0.00"}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">实退押金</span>
+                <input type="number" name="back_deposit" value='{$vo->back_deposit|default="0.00"}' class="layui-input" readonly />
+            </label>
+        </div>
+        {/if}
         <div class="layui-form-item layui-row layui-col-space15">
             <label class="layui-col-xs6">
                 <span class="color-green">订单备注</span>

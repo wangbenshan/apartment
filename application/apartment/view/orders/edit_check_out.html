@@ -1,0 +1,122 @@
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body think-box-shadow padding-left-40">
+        <div class="layui-row layui-col-space15">
+            <h4 class="font-w8 font-s16 color-blue">入住信息</h4>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs3">
+                <span class="color-green">校区</span>
+                <input type="text" name="campus" value='{$vo->campus}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">房间规格</span>
+                <input type="text" name="room_type" value='{$vo->room_type}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">房间</span>
+                <input type="text" name="room_name" value='{$vo->room_name}' class="layui-input" readonly />
+            </label>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs3">
+                <span class="color-green">订单状态</span>
+                <input type="text" name="status" value='{switch $vo->status}
+                {case 0}已取消{/case}
+                {case 10}已预订未入住{/case}
+                {case 20}已入住{/case}
+                {case 30}已退房{/case}
+                {case 40}已换房{/case}
+                {default /}未知
+                {/switch}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">租期</span>
+                <input type="text" name="lease_term" value='{$vo->lease_term|default=""}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">入住时间</span>
+                <input type="text" name="book_in_time" value='{$vo->book_in_time|default=""}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">离店时间</span>
+                <input type="text" name="departure_time" value='{$vo->departure_time|default=""}' class="layui-input" readonly />
+            </label>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs3">
+                <span class="color-green">学费总金额（¥）</span>
+                <input type="number" name="total_money" value='{$vo->total_money|default="0.00"}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">所交定金（¥）</span>
+                <input type="number" name="front_money" value='{$vo->front_money|default="0.00"}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">实交尾款（¥）</span>
+                <input type="number" name="actual_rest_money" value='{$vo->actual_rest_money|default="0.00"}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">实付总额（¥）</span>
+                <input type="number" name="pay_money" value='{$vo->pay_money|default="0.00"}' class="layui-input" readonly />
+            </label>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs3">
+                <span class="color-green">公共区域水电费（¥）</span>
+                <input type="number" name="public_water_rate" value='{$vo->public_water_rate|default="0.00"}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">公共水电费实缴（¥）</span>
+                <input type="number" name="actual_public_water_rate" value='{$vo->actual_public_water_rate|default="0.00"}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">电费周期</span>
+                <input type="text" name="power_rate_cycle" value='{$vo->power_rate_cycle|default=""}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">押金（¥）</span>
+                <input type="number" name="deposit" value='{$vo->deposit|default="0.00"}' class="layui-input" readonly />
+            </label>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs3">
+                <span class="color-green">实退学费</span>
+                <input type="number" name="back_study_money" value='{$vo->back_study_money|default="0.00"}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">实退公共水电费</span>
+                <input type="number" name="back_public_money" value='{$vo->back_public_money|default="0.00"}' class="layui-input" readonly />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">实退押金</span>
+                <input type="number" name="back_deposit" value='{$vo->deposit|default="0.00"}' class="layui-input" readonly />
+            </label>
+        </div>
+        <div class="layui-row layui-col-space15">
+            <h4 class="font-w8 font-s16 color-blue">修改退费信息</h4>
+        </div>
+        <div class="layui-form-item layui-row layui-col-space15">
+            <label class="layui-col-xs3">
+                <span class="color-green">修改实退学费（¥）</i></span>
+                <input type="number" name="edit_back_study_money" value='' class="layui-input" required placeholder="请输入修改的实退学费" />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">修改实退公共水电费（¥）</span>
+                <input type="number" name="edit_back_public_money" value='' class="layui-input" required placeholder="请输入修改的公共水实退电费" />
+            </label>
+            <label class="layui-col-xs3">
+                <span class="color-green">修改实退押金（¥）</i></span>
+                <input type="number" name="edit_back_deposit" value='' class="layui-input" required placeholder="请输入修改的实退押金金额" />
+            </label>
+        </div>
+        {notempty name="vo->id"}<input type="hidden" name="id" value="{$vo->id}">{/notempty}
+        <div class="layui-form-item text-center">
+            <button class="layui-btn layui-btn-danger" type="button" data-confirm="确定要取消退房吗？" data-close="">取消退房</button>
+            <button class="layui-btn" type='submit'>确定退房</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    form.render();
+</script>
