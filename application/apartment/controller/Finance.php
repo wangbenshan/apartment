@@ -23,6 +23,7 @@ class Finance extends Base
             $this->title = '财务管理';
 
             $where = [];
+            $where[] = ['status', 'in', [10, 20, 30]];
             $where[] = ['is_deleted', '=', 0];
             $start_time = $this->request->param('start_time');
             $end_time = $this->request->param('end_time');
@@ -58,6 +59,7 @@ class Finance extends Base
         $this->applyCsrfToken();
         if($this->request->isGet()){
             $where = [];
+            $where[] = ['status', 'in', [10, 20, 30]];
             $where[] = ['is_deleted', '=', 0];
 
             // 获取订单列表
