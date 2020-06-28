@@ -19,6 +19,10 @@
 <button data-modal='{:url("queryStudents")}' data-title="同学入住" class='layui-btn layui-btn-sm layui-btn-primary'>同学入住</button>
 {/if}
 
+{if auth("remove")}
+<button data-action='{:url("remove")}' data-csrf="{:systoken('remove')}" data-rule="id#{key}" class='layui-btn layui-btn-sm layui-btn-danger'>批量删除</button>
+{/if}
+
 {/block}
 
 {block name="content"}
@@ -113,6 +117,9 @@
     <table class="layui-table margin-top-10" lay-skin="line">
         <thead>
         <tr>
+            <th class='list-table-check-td think-checkbox'>
+                <label><input data-auto-none data-check-target='.list-check-box' type='checkbox'></label>
+            </th>
             <th class='text-center nowrap'>校区 / 规格 / 房间</th>
             <th class="text-center nowrap" style="width:60px;">姓名</th>
             <th class="text-center nowrap" style="width:80px;">班型</th>
@@ -131,6 +138,9 @@
         <tbody>
         {foreach $list as $key=>$vo}
         <tr>
+            <td class='list-table-check-td think-checkbox'>
+                <label><input class="list-check-box" value='{$vo.id}' type='checkbox'></label>
+            </td>
             <td class='text-center'>
                 {$vo.campus} / {$vo.room_type} / {if $vo.room_name == '' || $vo.room_name == '未安排'}<span class="color-red">未安排</span>
                 {else /}{$vo.room_name}

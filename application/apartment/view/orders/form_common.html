@@ -24,7 +24,7 @@
     </label>
     <label class="layui-col-xs3">
         <span class="color-green">身份证号</span>
-        <input name="stu_id_num" value='{$vo->stu_id_num|default=""}' maxlength="18" class="layui-input" {if request()->action() != 'edit'}required{/if} placeholder="请输入身份证号" />
+        <input name="stu_id_num" value='{$vo->stu_id_num|default=""}' maxlength="18" class="layui-input" {if request()->action() != 'edit' && request()->action() != 'reserve'}required{/if} placeholder="请输入身份证号" />
     </label>
 </div>
 <div class="layui-form-item layui-row layui-col-space15">

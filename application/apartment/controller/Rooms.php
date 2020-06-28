@@ -173,7 +173,7 @@ class Rooms extends Base
     public function forbid()
     {
         $this->applyCsrfToken();
-        if(!$this->checkIsEmpty($this->request->param('id'))) $this->error('此房间已被预定或入住，不能删除！');
+        if(!$this->checkIsEmpty($this->request->param('id'))) $this->error('此房间已被预定或入住，不能禁用！');
         $this->_save($this->table, ['status' => '0']);
     }
 
@@ -194,7 +194,7 @@ class Rooms extends Base
     public function remove()
     {
         $this->applyCsrfToken();
-        if(!$this->checkIsEmpty($this->request->param('id'))) $this->error('此房间已被预定或入住，不能删除！');
+        if(!$this->checkIsEmpty($this->request->param('id'))) $this->error('有房间已被预定或入住，不能删除！');
         $this->_delete($this->table);
     }
 
@@ -224,15 +224,16 @@ class Rooms extends Base
     }
 
     /**
-     * 检查房间是否有空床位
+     * 检查房间是否已被预定或入住
      */
     private function checkIsEmpty($id)
     {
+        $flag = strpos(',', $id) > 0 ? 'in' : '=';
         $orders = \app\common\model\Orders::where([
             ['status', 'in', [10, 20]],
             ['room_id', '=', $id],
             ['is_deleted', '=', 0]
-        ])->select();
+        ])->where('room_id', $flag, $id)->select();
         return $orders->isEmpty();
     }
 

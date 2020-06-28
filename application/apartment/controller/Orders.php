@@ -68,6 +68,9 @@ class Orders extends Base
 
             $query_obj = $this->_query($this->table)
                 ->where($where)->order('add_time desc,id desc');
+            if($this->request->has('public_water_rate')){
+                $query_obj->where('public_water_rate', '<=', $this->request->param('public_water_rate'));
+            }
             // 业务员
             if($this->is_salesman){
                 $map = [];
@@ -79,7 +82,7 @@ class Orders extends Base
             }else{
                 $query_obj->like('room_name,stu_name,stu_phone,salesman');
             }
-            $query_obj->equal('campus_id#campus,room_type_num#room_type,sex,status,public_water_rate')->page();
+            $query_obj->equal('campus_id#campus,room_type_num#room_type,sex,status')->page();
         }
     }
 
@@ -107,9 +110,9 @@ class Orders extends Base
     {
         $this->applyCsrfToken();
         $order_id = $this->request->param('id');
-        $order = OrdersModel::get($order_id);
+        /*$order = OrdersModel::get($order_id);
         if($order->isEmpty()) $this->error('该订单不存在！');
-        if($order->is_deleted == 1) $this->error('该订单已被删除，请不要重复操作！');
+        if($order->is_deleted == 1) $this->error('该订单已被删除，请不要重复操作！');*/
 
         $this->_save($this->table, ['is_deleted' => '1'], '', ['id' => $order_id]);
     }
@@ -638,6 +641,7 @@ class Orders extends Base
             $orderModel = new OrdersModel();
 
             $update_data = [];
+            $start = date('Y-m-d H:i:s', strtotime('-1 month'));
 
             foreach($data as &$val){
                 // 获取房间规格数字
@@ -689,8 +693,9 @@ class Orders extends Base
                 // 数据来源：excel导入
                 $val['data_from'] = 1;
 
-                // 查重
-                $order_tmp = $orderModel->where($val)->find();
+                // TODO 查重，一个月内同手机号算重复
+                $order_tmp = $orderModel->where('stu_phone', '=', $val['stu_phone'])
+                    ->whereTime('add_time', '>=', $start)->find();
                 if(!empty($order_tmp)){
                     // 重复，则覆盖，取消之前的再新增
                     $update_data[] = $order_tmp['id'];
@@ -711,7 +716,7 @@ class Orders extends Base
                 if($res->isEmpty()) throw new Exception('导入数据失败，请重试！');
 
                 Db::commit();
-                $this->success('导入数据成功');
+                $this->success('导入数据成功'.(empty($update_data) ? '' : '，共有'.count($update_data).'条数据被覆盖！'));
 
             }catch(Exception $e){
                 Db::rollback();

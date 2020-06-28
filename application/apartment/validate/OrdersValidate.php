@@ -77,7 +77,7 @@ class OrdersValidate extends Validate
     public function sceneReserve()
     {
         return $this->only(['campus_id', 'room_type_num', 'room_id', 'stu_name', 'sex', 'stu_phone',
-            'stu_id_num', 'book_in_time', 'departure_time', 'public_water_rate', 'actual_public_water_rate', 'total_money', 'front_money'])
+            'book_in_time', 'departure_time', 'public_water_rate', 'actual_public_water_rate', 'total_money', 'front_money'])
             ->remove('room_id', 'require');
     }
 
