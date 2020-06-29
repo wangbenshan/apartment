@@ -80,19 +80,25 @@
     form.render();
 
     form.on('submit(*)', function(data){
-        if(data.field.actual_rest_money != data.field.rest_money){
+        if(parseFloat(data.field.actual_rest_money) != parseFloat(data.field.rest_money)){
             let index = $.msg.confirm('实交尾款和应交尾款不一致，确定要提交吗？', function(){
                 $.msg.close(index);
-                $.post('{:request()->url()}', $('#handle_form').serialize(), function(data){
-                    if(data.code == 0){
-                        $.msg.error(data.info);
-                    }else{
-                        $.msg.success(data.info);
-                        history.go(0);
-                    }
-                });
+                submitOrder()
             })
+        }else{
+            submitOrder()
         }
         return false;
     });
+
+    function submitOrder(){
+        $.post('{:request()->url()}', $('#handle_form').serialize(), function(data){
+            if(data.code == 0){
+                $.msg.error(data.info);
+            }else{
+                $.msg.success(data.info);
+                history.go(0);
+            }
+        });
+    }
 </script>

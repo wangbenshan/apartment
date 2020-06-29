@@ -68,7 +68,7 @@ class Orders extends Base
 
             $query_obj = $this->_query($this->table)
                 ->where($where)->order('add_time desc,id desc');
-            if($this->request->has('public_water_rate')){
+            if($this->request->has('public_water_rate') && trim($this->request->param('public_water_rate')) != ''){
                 $query_obj->where('public_water_rate', '<=', $this->request->param('public_water_rate'));
             }
             // 业务员
