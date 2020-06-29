@@ -29,11 +29,16 @@
 
     $('#order_add').click(function(data){
         let is_reserved = $('[name=is_reserved]:checked').val();
-        layer.closeAll();
         if(is_reserved == 0){
+            layer.closeAll();
             $.form.href("{:url('add')}");
         }else if(is_reserved == 1){
-            let id = $('[name=add_stu_oid]:checked').val()
+            let id = parseInt($('[name=add_stu_oid]:checked').val());
+            if(!id || id <= 0){
+                $.msg.error('请点击查询并选择学生后，再进行提交！');
+                return false;
+            }
+            layer.closeAll();
             $.form.modal("{:url('handleReserve')}?id="+id);
         }
     });
