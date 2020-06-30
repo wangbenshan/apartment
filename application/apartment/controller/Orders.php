@@ -114,7 +114,7 @@ class Orders extends Base
         if($order->isEmpty()) $this->error('该订单不存在！');
         if($order->is_deleted == 1) $this->error('该订单已被删除，请不要重复操作！');*/
 
-        $this->_save($this->table, ['is_deleted' => '1'], '', ['id' => $order_id]);
+        $this->_save($this->table, ['is_deleted' => '1']);
     }
 
     /**
@@ -180,8 +180,9 @@ class Orders extends Base
             // 订单状态
             $data['status'] = 20;   // 已付款，已入住
 
-            $data['salesman_id'] = session('user.id');
-            $data['salesman'] = session('user.real_name');
+//            $data['salesman_id'] = session('user.id');
+//            $data['salesman'] = session('user.real_name');
+
             $res = OrdersModel::create($data);
             if ($res->isEmpty()) $this->error('创建订单失败，请重试！');
             $this->success('下单成功，顾客可以入住房间啦！');
@@ -322,9 +323,10 @@ class Orders extends Base
             $data['add_time'] = date('Y-m-d H:i:s');
             // 订单状态
             $data['status'] = 10;   // 已预订
+//
+//            $data['salesman_id'] = session('user.id');
+//            $data['salesman'] = session('user.real_name');
 
-            $data['salesman_id'] = session('user.id');
-            $data['salesman'] = session('user.real_name');
             $res = OrdersModel::create($data);
             if ($res->isEmpty()) $this->error('创建订单失败，请重试！');
             $this->success('预定房间成功！');
@@ -694,11 +696,13 @@ class Orders extends Base
                 $val['data_from'] = 1;
 
                 // TODO 查重，一个月内同手机号算重复
-                $order_tmp = $orderModel->where('stu_phone', '=', $val['stu_phone'])
-                    ->whereTime('add_time', '>=', $start)->find();
-                if(!empty($order_tmp)){
+                $order_ids = $orderModel->where([
+                    ['is_deleted', '<>', 1],
+                    ['stu_phone', '=', $val['stu_phone']]
+                ])->whereTime('add_time', '>=', $start)->column('id');
+                if(!empty($order_ids)){
                     // 重复，则覆盖，取消之前的再新增
-                    $update_data[] = $order_tmp['id'];
+                    $update_data = array_merge($order_ids, $update_data);
                 }
 
                 $val['add_time'] = date('Y-m-d H:i:s');
