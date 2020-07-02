@@ -55,7 +55,7 @@ class Orders extends Base
 
             $where = [];
             $where[] = ['status', '<>', 40];
-            $where[] = ['is_deleted', '=', 0];
+            $where[] = ['is_deleted', '<>', 1];
             if(empty($this->campus)){
                 // 校区列表
                 $this->assign('campus', RoomService::getCampus());
@@ -68,8 +68,14 @@ class Orders extends Base
 
             $query_obj = $this->_query($this->table)
                 ->where($where)->order('add_time desc,id desc');
+
             if($this->request->has('public_water_rate') && trim($this->request->param('public_water_rate')) != ''){
-                $query_obj->where('public_water_rate', '<=', $this->request->param('public_water_rate'));
+                $map = [];
+                $map[] = ['public_water_rate', '<=', $this->request->param('public_water_rate')];
+                $map[] = ['public_water_rate', '=', null];
+                $query_obj->where(function($query) use ($map){
+                    $query->whereOr($map);
+                });
             }
             // 业务员
             if($this->is_salesman){

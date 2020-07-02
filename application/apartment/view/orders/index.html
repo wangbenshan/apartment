@@ -19,7 +19,7 @@
 <button data-modal='{:url("queryStudents")}' data-title="同学入住" class='layui-btn layui-btn-sm layui-btn-primary'>同学入住</button>
 {/if}
 
-{if auth("remove")}
+{if auth("remove") && session('user.username') == 'admin'}
 <button data-action='{:url("remove")}' data-csrf="{:systoken('remove')}" data-rule="id#{key}" class='layui-btn layui-btn-sm layui-btn-danger'>批量删除</button>
 {/if}
 
@@ -69,7 +69,7 @@
                 </div>
             </div>
             <div class="layui-form-item layui-inline">
-                <label class="layui-form-label">公共水电费</label>
+                <label class="layui-form-label">公共水电费(<=)</label>
                 <div class="layui-input-inline">
                     <input name="public_water_rate" value="{$Think.get.public_water_rate|default=''}" placeholder="请输入公共水电费" class="layui-input">
                 </div>

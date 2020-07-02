@@ -75,7 +75,7 @@ class Rooms extends Base
             }
             $this->assign('campus_beds', $campus_beds);
 
-
+            // 各房间入住人数、已预订未入住人数
             $sub_query = Db::name('orders')->group('room_id')
                 ->fieldRaw('room_id, COUNT(*) AS total,
                 SUM(IF (`status` = 10, 1, 0) ) AS reserved, 

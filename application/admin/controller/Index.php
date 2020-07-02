@@ -58,9 +58,9 @@ class Index extends Controller
         // 房间总量
         $this->room_count = Db::name('rooms')->where('status', 1)->sum('bed_total');
         // 当前已预订数量
-        $this->reserved_count = Db::name('orders')->where('status', 10)->count();
+        $this->reserved_count = Db::name('orders')->where('is_deleted', 0)->where('status', 10)->count();
         // 当前已入住数量
-        $this->book_in_count = Db::name('orders')->where('status', 20)->count();
+        $this->book_in_count = Db::name('orders')->where('is_deleted', 0)->where('status', 20)->count();
 //        // 当前所有有效订单总金额
 //        $this->total_money_sum = number_format(Db::name('orders')->where('status', 'in', [10, 20])->sum('total_money'), 2, '.', ',');
 
