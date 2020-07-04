@@ -161,7 +161,7 @@ class RoomService extends CommonService
         $sql = 'SELECT rr.*,oo.o_count from ap_rooms as rr
                 LEFT JOIN (
                     SELECT r.id as room_id,count(o.id) o_count from ap_rooms as r
-                    LEFT JOIN (SELECT id,room_id from ap_orders WHERE `status` in (10,20) ) as o on r.id = o.room_id
+                    LEFT JOIN (SELECT id,room_id from ap_orders WHERE `status` in (10,20) AND is_deleted = 0) as o on r.id = o.room_id
                     WHERE '.$where_str.' GROUP BY r.id
                 ) as oo on rr.id = oo.room_id WHERE rr.bed_total > oo.o_count';
         $rooms = Db::query($sql);
