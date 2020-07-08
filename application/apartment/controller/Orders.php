@@ -69,10 +69,10 @@ class Orders extends Base
             $query_obj = $this->_query($this->table)
                 ->where($where)->order('add_time desc,id desc');
 
-            if($this->request->has('public_water_rate') && trim($this->request->param('public_water_rate')) != ''){
+            if($this->request->has('actual_public_water_rate') && trim($this->request->param('actual_public_water_rate')) != ''){
                 $map = [];
-                $map[] = ['public_water_rate', '<=', $this->request->param('public_water_rate')];
-                $map[] = ['public_water_rate', '=', null];
+                $map[] = ['actual_public_water_rate', '<=', $this->request->param('actual_public_water_rate')];
+                $map[] = ['actual_public_water_rate', '=', null];
                 $query_obj->where(function($query) use ($map){
                     $query->whereOr($map);
                 });
@@ -171,11 +171,13 @@ class Orders extends Base
 
             if ($data['total_money'] <= 0) $this->error('学费总金额数据错误，请重试！');
 
-            if ($data['pay_money'] < 0) $this->error('实付金额数据错误，请重试！');
+            if ($data['actual_rest_money'] < 0) $this->error('实付金额数据错误，请重试！');
 
             if ($data['deposit'] < 0) $this->error('押金数据错误，请重试！');
 
-            if ($data['pay_money'] != $data['total_money']) $this->error('实付金额要与学费总金额一致！');
+            if ($data['actual_rest_money'] != $data['total_money']) $this->error('实付金额要与学费总金额一致！');
+
+            $data['pay_money'] = $data['actual_rest_money'] + $data['deposit']; // 付款总金额 包含实付金额，押金 和 定金
 
             // 押金状态
             $data['deposit_status'] = $data['deposit'] > 0 ? 1 : 0;
@@ -678,6 +680,7 @@ class Orders extends Base
                     if($val['status'] != '10') $this->error($val['stu_name'].'同学的订单状态错误，订单状态【预定未安排】与实际不符！');
                 }
 
+                $deposit = 0;
                 // 没有押金
                 if(!isset($val['deposit']) || $val['deposit'] <= 0){
                     $val['deposit_status'] = 0;
@@ -689,6 +692,7 @@ class Orders extends Base
                         // 未退押金
                         $val['deposit_status'] = 1;
                     }
+                    $deposit = $val['deposit'];
                 }
 
                 // 实付金额
@@ -696,7 +700,7 @@ class Orders extends Base
                 $actual_rest_money = isset($val['actual_rest_money']) ? $val['actual_rest_money'] : 0;
                 // 应交金额
                 $val['rest_money'] = isset($val['rest_money']) ? $val['rest_money'] : ($val['total_money'] - $front_money);
-                $val['pay_money'] = $front_money + $actual_rest_money;
+                $val['pay_money'] = $front_money + $actual_rest_money + $deposit;
 
                 // 数据来源：excel导入
                 $val['data_from'] = 1;
@@ -704,6 +708,7 @@ class Orders extends Base
                 // TODO 查重，一个月内同手机号算重复
                 $order_ids = $orderModel->where([
                     ['is_deleted', '<>', 1],
+                    ['status', '<>', 20],   // 已入住的不覆盖
                     ['stu_phone', '=', $val['stu_phone']]
                 ])->whereTime('add_time', '>=', $start)->column('id');
                 if(!empty($order_ids)){

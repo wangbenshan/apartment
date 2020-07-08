@@ -23,7 +23,7 @@ class OrdersValidate extends Validate
         'front_money'               =>  'require|float',
 
         'deposit'                   =>  'require|float',
-        'pay_money'                 =>  'require|float',
+        'actual_rest_money'         =>  'require|float',
 
         'back_reposit'              =>  'require|float',
         'back_study_money'          =>  'require|float',
@@ -63,8 +63,8 @@ class OrdersValidate extends Validate
         'front_money.float'      =>  '定金格式错误',
         'deposit.require'        =>  '请输入押金',
         'deposit.float'          =>  '押金格式错误',
-        'pay_money.require'      =>  '请输入实付金额',
-        'pay_money.float'        =>  '实付总额格式错误',
+        'actual_rest_money.require'    =>  '请输入实付金额',
+        'actual_rest_money.float'      =>  '实付总额格式错误',
 
         'back_deposit.require'         =>  '请输入所退押金',
         'back_deposit.float'           =>  '押金格式错误',
@@ -84,13 +84,13 @@ class OrdersValidate extends Validate
     public function sceneAdd()
     {
         return $this->only(['campus_id', 'room_type_num', 'room_id', 'stu_name', 'sex', 'stu_phone',
-            'stu_id_num', 'book_in_time', 'departure_time', 'public_water_rate', 'actual_public_water_rate', 'total_money', 'deposit', 'pay_money']);
+            'stu_id_num', 'book_in_time', 'departure_time', 'public_water_rate', 'actual_public_water_rate', 'total_money', 'deposit', 'actual_rest_money']);
     }
 
     public function sceneEdit()
     {
         return $this->only(['campus_id', 'room_type_num', 'stu_name', 'sex', 'stu_phone',
-            'book_in_time', 'departure_time', 'public_water_rate', 'actual_public_water_rate', 'total_money', 'pay_money']);
+            'book_in_time', 'departure_time', 'public_water_rate', 'actual_public_water_rate', 'total_money', 'actual_rest_money']);
     }
 
     public function sceneHandleReserve()

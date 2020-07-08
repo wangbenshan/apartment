@@ -71,7 +71,7 @@
             <div class="layui-form-item layui-inline">
                 <label class="layui-form-label">公共水电费(<=)</label>
                 <div class="layui-input-inline">
-                    <input name="public_water_rate" value="{$Think.get.public_water_rate|default=''}" placeholder="请输入公共水电费" class="layui-input">
+                    <input name="actual_public_water_rate" value="{$Think.get.actual_public_water_rate|default=''}" placeholder="请输入公共水电费" class="layui-input">
                 </div>
             </div>
             <div class="layui-form-item layui-inline">
@@ -128,7 +128,7 @@
             <th class="text-center nowrap">入住时间 ~ 到期时间</th>
             <th class="text-center nowrap">定金</th>
             <th class="text-center nowrap">押金</th>
-            <th class="text-center nowrap">学费总金额</th>
+            <th class="text-center nowrap">实付金额</th>
             <th class="text-center nowrap">订单状态</th>
             <th class="text-center nowrap">订单创建时间</th>
             <th class="text-center nowrap">业务员</th>
@@ -152,7 +152,7 @@
             <td class='text-center'>{$vo.book_in_time}<div> ~ </div>{$vo.departure_time}</td>
             <td class='text-center'>{$vo.front_money ?: '--'}</td>
             <td class='text-center'>{$vo.deposit ?: '--'}</td>
-            <td class='text-center'>{$vo.total_money}</td>
+            <td class='text-center'>{$vo.actual_rest_money ?: '--'}</td>
             <td class='text-center nowrap'>
                 {if $vo.is_deleted == 1}
                 已删除

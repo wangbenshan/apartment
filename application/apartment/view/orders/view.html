@@ -112,9 +112,8 @@
                 <input type="number" name="front_money" value='{$vo->front_money|default="0.00"}' readonly class="layui-input">
             </label>
             <label class="layui-col-xs3">
-                <span class="color-green">实付总额【含定金】（¥）</span>
-                {php}$already_paid = number_format($vo->pay_money + $vo->front_money, 2, '.', ',');{/php}
-                <input type="number" name="pay_money" value='{$already_paid|default="0.00"}' readonly class="layui-input">
+                <span class="color-green">实付总额【含定金、押金】（¥）</span>
+                <input type="number" name="pay_money" value='{$vo->pay_money|default="0.00"}' readonly class="layui-input">
             </label>
             <label class="layui-col-xs3">
                 <span class="color-green">应补缴费用（¥）</span>
