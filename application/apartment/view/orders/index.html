@@ -2,6 +2,8 @@
 
 {block name="button"}
 
+<button data-href="__ROOT__/static/download/export_template.xls" data-title="下载模版" class='layui-btn layui-btn-sm layui-btn-primary'>下载模版</button>
+
 {if auth("export")}
 <button data-href='{:url("export")}' data-title="导出订单" class='layui-btn layui-btn-sm layui-btn-primary'>导出订单</button>
 {/if}
