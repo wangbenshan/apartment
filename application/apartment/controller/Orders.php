@@ -3,6 +3,7 @@
 namespace app\apartment\controller;
 
 use app\apartment\validate\OrdersValidate;
+use app\common\model\SystemUser;
 use app\common\service\RoomService;
 use app\common\model\Orders as OrdersModel;
 use app\common\model\Rooms;
@@ -54,39 +55,35 @@ class Orders extends Base
             $this->title = '订单列表';
 
             $where = [];
-            $where[] = ['status', '<>', 40];
-            $where[] = ['is_deleted', '<>', 1];
+            $where[] = ['o.status', '<>', 40];
+            $where[] = ['o.is_deleted', '<>', 1];
             if(empty($this->campus)){
                 // 校区列表
                 $this->assign('campus', RoomService::getCampus());
             }else{
-                $where[] = ['campus_id', '=', $this->campus['id']];
+                $where[] = ['o.campus_id', '=', $this->campus['id']];
             }
 
             // 房间规格列表
             $this->assign('beds_config', RoomService::getRoomType());
 
-            $query_obj = $this->_query($this->table)
-                ->where($where)->order('add_time desc,id desc');
+            $query_obj = $this->_query($this->table)->alias('o')
+                ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->where($where)->order('o.add_time desc,o.id desc');
 
             if($this->request->has('actual_public_water_rate') && trim($this->request->param('actual_public_water_rate')) != ''){
                 $map = [];
-                $map[] = ['actual_public_water_rate', '<=', $this->request->param('actual_public_water_rate')];
-                $map[] = ['actual_public_water_rate', '=', null];
+                $map[] = ['o.actual_public_water_rate', '<=', $this->request->param('actual_public_water_rate')];
+                $map[] = ['o.actual_public_water_rate', '=', null];
                 $query_obj->where(function($query) use ($map){
                     $query->whereOr($map);
                 });
             }
             // 业务员
             if($this->is_salesman){
-                $map = [];
-                $map[] = ['salesman_id', '=', session('user.id')];
-                $map[] = ['salesman', 'like', '%"'.session('user.real_name').'"%'];
-                $query_obj->where(function($query) use ($map){
-                    $query->whereOr($map);
-                })->like('room_name,stu_name,stu_phone');
+                $query_obj->where('o.salesman_id', session('user.id'))->like('room_name,stu_name,stu_phone');
             }else{
-                $query_obj->like('room_name,stu_name,stu_phone,salesman');
+                $query_obj->like('room_name,stu_name,stu_phone,su.real_name#salesman');
             }
             $query_obj->equal('campus_id#campus,room_type_num#room_type,sex,status')->page();
         }
@@ -103,6 +100,9 @@ class Orders extends Base
             $order = OrdersModel::get($this->request->get('id'));
             if($order->isEmpty()) $this->error('数据不存在！');
             if($order->is_deleted == 1) $this->error('已删除！');
+            // salesman
+            $salesman = SystemUser::where('id', $order['salesman_id'])->value('real_name');
+            $order['salesman'] = $salesman ?: '';
             $this->assign('vo', $order);
             $this->fetch();
         }
@@ -219,13 +219,20 @@ class Orders extends Base
             $rooms = (new RoomService())->getAvailableRoomsByCampus($order->campus_id, $order->room_type_num);
             $this->assign('av_rooms', $rooms);
 
+            // 获取业务员
+            $salesman = SystemUser::where([
+                'status' => 1,
+                'is_deleted' => 0
+            ])->field('id, username, real_name')->select();
+            $this->assign('salesman', $salesman);
+
             $this->assign('vo', $order);
 
             return $this->fetch('form');
         } else {
             $data = $this->request->only(['campus_id', 'room_type_num', 'room_id', 'stu_name', 'sex', 'stu_phone', 'stu_id_num',
                 'project', 'school', 'application', 'native_place', 'lease_term', 'book_in_time', 'departure_time',
-                'public_water_rate', 'actual_public_water_rate', 'power_rate_cycle', 'total_money', 'deposit', 'pay_money', 'comment']);
+                'public_water_rate', 'actual_public_water_rate', 'power_rate_cycle', 'total_money', 'deposit', 'actual_rest_money', 'salesman_id', 'comment']);
             // 检查必填字段
             $validate = new OrdersValidate();
             if (!$validate->scene('edit')->check($data)) {
@@ -260,9 +267,14 @@ class Orders extends Base
 
             if ($data['total_money'] <= 0) $this->error('学费总金额数据错误，请重试！');
 
-            if ($data['pay_money'] < 0) $this->error('实付金额数据错误，请重试！');
+            if ($data['actual_rest_money'] < 0) $this->error('实付金额数据错误，请重试！');
 
             if ($data['deposit'] < 0) $this->error('押金数据错误，请重试！');
+
+
+            // 检查 salesman
+            $salesman = SystemUser::get($data['salesman_id']);
+            if($salesman->isEmpty()) $this->error('业务员信息有误！');
 
             $res = Db::name('orders')->where('id', $order->id)->data($data)->update();
             if ($res === false) $this->error('修改订单失败，请重试！');
@@ -535,7 +547,7 @@ class Orders extends Base
                     'status' => $order_status,
                     'comment' => $order->comment,
                     'salesman_id' => session('user.id'),
-                    'salesman' => session('user.real_name'),
+//                    'salesman' => session('user.real_name'),
                     'change_from' => $order->id,
                     'diff_money' => $data['total_money'] - $order->pay_money
                 ];
@@ -650,8 +662,19 @@ class Orders extends Base
 
             $orderModel = new OrdersModel();
 
+            $phone_arr = [];
             $update_data = [];
             $start = date('Y-m-d H:i:s', strtotime('-1 month'));
+
+            // 查询姓名不重复的业务员信息
+            $salesman_info = SystemUser::where([
+                'is_deleted' => 0,
+                'status' => 1
+            ])->field('id, username, real_name, count(*) as count')
+                ->group('real_name')->having('count = 1')->select();
+
+            // 以 real_name 分组
+            $salesman_info_rn = $salesman_info->column(null, 'real_name');
 
             foreach($data as &$val){
                 // 获取房间规格数字
@@ -705,26 +728,26 @@ class Orders extends Base
                 // 数据来源：excel导入
                 $val['data_from'] = 1;
 
-                // TODO 查重，一个月内同手机号算重复
-                $order_ids = $orderModel->where([
-                    ['is_deleted', '<>', 1],
-                    ['status', '<>', 20],   // 已入住的不覆盖
-                    ['stu_phone', '=', $val['stu_phone']]
-                ])->whereTime('add_time', '>=', $start)->column('id');
-                if(!empty($order_ids)){
-                    // 重复，则覆盖，取消之前的再新增
-                    $update_data = array_merge($order_ids, $update_data);
-                }
+                $phone_arr[] = $val['stu_phone'];
 
                 $val['add_time'] = date('Y-m-d H:i:s');
+
+                if(isset($salesman_info_rn[$val['salesman']])){
+                    $val['salesman_id'] = $salesman_info_rn[$val['salesman']]['id'];
+                }else{
+                    unset($val['salesman']);
+                }
             }
+
             Db::startTrans();
             try{
-                if(!empty($update_data)){
-                    // 删除已经存在的数据
-                    $res = $orderModel->where('id', 'in', $update_data)->data(['is_deleted' => 1])->update();
-                    if($res === false) throw new Exception('覆盖旧数据失败，请重试！');
-                }
+                // TODO 查重，一个月内同手机号算重复
+                $res = $orderModel->where([
+                    ['is_deleted', '<>', 1],
+                    ['status', '<>', 20],   // 已入住的不覆盖
+                    ['stu_phone', 'in', $phone_arr]
+                ])->whereTime('add_time', '>=', $start)->data(['is_deleted' => 1])->update();
+                if($res === false) throw new Exception('覆盖旧数据失败，请重试！');
 
                 // 新增数据
                 $res = $orderModel->saveAll($data);
@@ -750,7 +773,9 @@ class Orders extends Base
         $this->applyCsrfToken();
         if($this->request->isGet()){
             // 获取订单列表
-            $orders = OrdersModel::where('is_deleted', 0)->select();
+            $orders = OrdersModel::alias('o')
+                ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->where('o.is_deleted', 0)->field('o.*, su.real_name as salesman')->select();
             if($orders->isEmpty()) $this->error('暂无订单，导出失败！');
 
             $spreadsheet = new Spreadsheet();

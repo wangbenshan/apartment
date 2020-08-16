@@ -19,7 +19,12 @@
             </label>
             <label class="layui-col-xs3">
                 <span class="color-green">业务员</span>
-                <input type="text" name="salesman" value='{$vo->salesman|default=""}' class="layui-input" placeholder="请输入业务员" />
+                <select name="salesman_id" class="layui-input">
+                    <option value="">请选择业务员</option>
+                    {foreach $salesman as $val}
+                    <option value="{$val['id']}" {$val['id'] == $vo['salesman_id'] ? 'selected' : ''}>{$val['username']} ({$val['real_name'] ?: '无名'})</option>
+                    {/foreach}
+                </select>
             </label>
         </div>
         <div class="layui-form-item layui-row layui-col-space15">

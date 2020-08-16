@@ -44,9 +44,15 @@ class Finance extends Base
                 ->where('status', 'in', [10, 20])->sum('deposit');
             $this->assign('total_back', $total_back);
 
-            $this->_query(Db::name('orders'))->where($where)
-                ->field('id, stu_name, salesman, total_money, front_money, pay_time, pay_money, deposit, public_water_rate, actual_public_water_rate')
-                ->like('stu_name,salesman')->page();
+            foreach ($where as $k => $v){
+                $v[0] = 'o.'.$v[0];
+                $where[$k] = $v;
+            }
+
+            $this->_query(Db::name('orders'))->alias('o')->where($where)
+                ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->field('o.id, o.stu_name, su.real_name as salesman, o.total_money, o.front_money, o.pay_time, o.pay_money, o.deposit, o.public_water_rate, o.actual_public_water_rate')
+                ->like('stu_name,su.real_name#salesman')->page();
         }
     }
 
@@ -58,15 +64,20 @@ class Finance extends Base
     {
         $this->applyCsrfToken();
         if($this->request->isGet()){
+            $where1 = [];
+            $where1[] = ['o.status', 'in', [10, 20, 30]];
+            $where1[] = ['o.is_deleted', '=', 0];
+
+            // 获取订单列表
+            $orders = Db::name('orders')->alias('o')->where($where1)
+                ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->field('o.id, o.stu_name, su.real_name as salesman, o.total_money, o.front_money, o.pay_time, o.pay_money, o.deposit, o.public_water_rate, o.actual_public_water_rate')
+                ->select();
+            if(empty($orders)) $this->error('暂无订单可统计，导出失败！');
+
             $where = [];
             $where[] = ['status', 'in', [10, 20, 30]];
             $where[] = ['is_deleted', '=', 0];
-
-            // 获取订单列表
-            $orders = Db::name('orders')->where($where)
-                ->field('id, stu_name, salesman, total_money, front_money, pay_time, pay_money, deposit, public_water_rate, actual_public_water_rate')
-                ->select();
-            if(empty($orders)) $this->error('暂无订单可统计，导出失败！');
 
             // 各项统计
             $total_amount = Db::name('orders')->where($where)
@@ -156,9 +167,9 @@ class Finance extends Base
             }
 
             $count = count($orders);
-            $sheet->getStyle('A1:J'.($count + 10))->getFont()->setName('宋体')->setSize(12);
-            $sheet->getStyle('A10:J'.($count + 10))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('A10:J10')->getFont()->setBold(true);
+            $sheet->getStyle('A1:J'.($count + 11))->getFont()->setName('宋体')->setSize(12);
+            $sheet->getStyle('A10:J'.($count + 11))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A10:J11')->getFont()->setBold(true);
             $sheet->getColumnDimension('E')->setWidth(18);
             $sheet->getColumnDimension('J')->setWidth(24);
 
