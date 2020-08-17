@@ -69,6 +69,7 @@ class Orders extends Base
 
             $query_obj = $this->_query($this->table)->alias('o')
                 ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->field('o.*, su.real_name as salesman')
                 ->where($where)->order('o.add_time desc,o.id desc');
 
             if($this->request->has('actual_public_water_rate') && trim($this->request->param('actual_public_water_rate')) != ''){
@@ -115,7 +116,7 @@ class Orders extends Base
     public function remove()
     {
         $this->applyCsrfToken();
-        $order_id = $this->request->param('id');
+//        $order_id = $this->request->param('id');
         /*$order = OrdersModel::get($order_id);
         if($order->isEmpty()) $this->error('该订单不存在！');
         if($order->is_deleted == 1) $this->error('该订单已被删除，请不要重复操作！');*/
