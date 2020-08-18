@@ -176,8 +176,7 @@
                 <span class="text-explode">|</span>
                 <a class="layui-btn layui-btn-xs layui-btn-primary" data-open='{:url("apartment/orders/view")}?id={$vo.id}'>查 看</a>
                 {/if}
-                {/* 退房的可以修改金额 */}
-                {if $vo.data_from == 1 && auth("apartment/orders/edit")}
+                {if auth("apartment/orders/edit")}
                 <span class="text-explode">|</span>
                 <a class="layui-btn layui-btn-xs" data-open='{:url("apartment/orders/edit")}?id={$vo.id}'>编 辑</a>
                 {/if}

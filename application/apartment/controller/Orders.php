@@ -573,7 +573,7 @@ class Orders extends Base
                 if ($new_order->isEmpty()) throw new Exception('创建新订单失败，请重试！');
 
                 Db::commit();
-                $this->success('调换新房间成功！');
+                $this->success('调换新房间成功！', 'javascript:history.back()');
             } catch (Exception $exception) {
                 Db::rollback();
                 $this->error($exception->getMessage());
