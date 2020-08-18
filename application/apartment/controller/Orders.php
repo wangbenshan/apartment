@@ -56,7 +56,7 @@ class Orders extends Base
 
             $where = [];
             $where[] = ['o.status', '<>', 40];
-            $where[] = ['o.is_deleted', '<>', 1];
+            $where[] = ['o.is_deleted', '=', 0];
             if(empty($this->campus)){
                 // 校区列表
                 $this->assign('campus', RoomService::getCampus());
@@ -86,7 +86,7 @@ class Orders extends Base
             }else{
                 $query_obj->like('room_name,stu_name,stu_phone,su.real_name#salesman');
             }
-            $query_obj->equal('campus_id#campus,room_type_num#room_type,sex,status')->page();
+            $query_obj->equal('campus_id#campus,room_type_num#room_type,sex,o.status#status')->page();
         }
     }
 
@@ -137,6 +137,14 @@ class Orders extends Base
             $this->assign('campus', RoomService::getCampus());
             // 获取房间规格
             $this->assign('type', RoomService::getRoomType());
+
+            // 获取业务员
+            $salesman = SystemUser::where([
+                'status' => 1,
+                'is_deleted' => 0
+            ])->select();
+            $this->assign('salesman', $salesman);
+
             return $this->fetch('form');
         } else {
             $data = $this->request->post();
@@ -296,6 +304,14 @@ class Orders extends Base
             $this->assign('campus', RoomService::getCampus());
             // 获取房间规格
             $this->assign('type', RoomService::getRoomType());
+
+            // 获取业务员
+            $salesman = SystemUser::where([
+                'status' => 1,
+                'is_deleted' => 0
+            ])->select();
+            $this->assign('salesman', $salesman);
+
             return $this->fetch();
         } elseif ($this->request->isPost()) {
             $data = $this->request->post();
@@ -510,6 +526,7 @@ class Orders extends Base
                 // 是否还有空床位
                 $count = OrdersModel::where([
                     ['status', 'in', [10, 20]],
+                    ['is_deleted', '=', 0],
                     ['room_id', '=', $room->id],
                     ['id', '<>', $order->id]
                 ])->count();
@@ -880,7 +897,9 @@ class Orders extends Base
             $where = [];
             $where[] = ['status', '=', '10'];
             if(!empty($name)) $where[] = ['stu_name', 'like', '%'.$name.'%'];
-            $students = OrdersModel::where($where)->field('id, stu_name, stu_id_num, sex, stu_phone')->select();
+            $students = OrdersModel::where($where)
+                ->where('is_deleted', 0)
+                ->field('id, stu_name, stu_id_num, sex, stu_phone')->select();
             return json($students->isEmpty() ? [] : $students);
         }
     }
