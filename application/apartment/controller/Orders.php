@@ -564,7 +564,7 @@ class Orders extends Base
                     'power_rate_cycle' => $order->power_rate_cycle,
                     'status' => $order_status,
                     'comment' => $order->comment,
-                    'salesman_id' => session('user.id'),
+//                    'salesman_id' => session('user.id'),
 //                    'salesman' => session('user.real_name'),
                     'change_from' => $order->id,
                     'diff_money' => $data['total_money'] - $order->pay_money
