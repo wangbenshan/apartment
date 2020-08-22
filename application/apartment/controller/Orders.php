@@ -790,10 +790,25 @@ class Orders extends Base
     {
         $this->applyCsrfToken();
         if($this->request->isGet()){
+            $data = $this->request->only(['campus', 'room_type', 'room_name', 'stu_name', 'actual_public_water_rate', 'sex', 'salesman', 'status']);
+
+            $where = [];
+            if($data['campus']) $where[] = ['campus_id', '=', $data['campus']];
+            if($data['room_type']) $where[] = ['room_type_num', '=', $data['room_type']];
+            if($data['room_name']) $where[] = ['room_name', 'like', '%'.$data['room_name'].'%'];
+            if($data['stu_name']) $where[] = ['stu_name', 'like', '%'.$data['stu_name'].'%'];
+            if($data['actual_public_water_rate']) $where[] = ['actual_public_water_rate', '<=', $data['actual_public_water_rate']];
+            if($data['sex']) $where[] = ['sex', '=', $data['sex']];
+            if($data['salesman']) $where[] = ['real_name', 'like', $data['salesman']];
+            if($data['status']) $where[] = ['o.status', '=', $data['status']];
+
             // 获取订单列表
             $orders = OrdersModel::alias('o')
                 ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
-                ->where('o.is_deleted', 0)->field('o.*, su.real_name as salesman')->select();
+                ->where('o.is_deleted', 0)
+                ->where('o.status', '<>', 40)
+                ->where($where)
+                ->field('o.*, su.real_name as salesman')->select();
             if($orders->isEmpty()) $this->error('暂无订单，导出失败！');
 
             $spreadsheet = new Spreadsheet();

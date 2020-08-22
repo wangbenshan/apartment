@@ -22,15 +22,21 @@ class Finance extends Base
         if ($this->request->isGet()) {
             $this->title = '财务管理';
 
-            $where = [];
-            $where[] = ['status', 'in', [10, 20, 30]];
-            $where[] = ['is_deleted', '=', 0];
-            $start_time = $this->request->param('start_time');
-            $end_time = $this->request->param('end_time');
-            if(!empty($start_time)) $where[] = ['pay_time', '>= time', $start_time];
-            if(!empty($end_time)) $where[] = ['pay_time', '<= time', $end_time.' 23:59:59'];
+            $data = $this->request->only(['start_time', 'end_time', 'stu_name', 'salesman']);
 
-            $total_amount = Db::name('orders')->where($where)
+            $where = [];
+            $where[] = ['o.status', 'in', [10, 20, 30]];
+            $where[] = ['o.is_deleted', '=', 0];
+
+            $filter = [];
+            if(isset($data['start_time']) && $data['start_time']) $filter[] = ['pay_time', '>= time', $data['start_time']];
+            if(isset($data['end_time']) && $data['end_time']) $filter[] = ['pay_time', '<= time', $data['end_time'].' 23:59:59'];
+            if(isset($data['stu_name']) && $data['stu_name']) $filter[] = ['stu_name', 'like', '%'.$data['stu_name'].'%'];
+            if(isset($data['salesman']) && $data['salesman']) $filter[] = ['su.real_name', 'like', '%'.$data['salesman'].'%'];
+
+            $total_amount = Db::name('orders')->alias('o')
+                ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->where($where)->where($filter)
                 ->fieldRaw('SUM(`total_money`) as total_money,
                  SUM(`front_money`) as total_front_money,
                  SUM(`pay_money`) as total_pay_money,
@@ -40,14 +46,11 @@ class Finance extends Base
             $this->assign('total_amount', $total_amount);
 
             // 应退总额，已预订和已入住的
-            $total_back = Db::name('orders')->where($where)
-                ->where('status', 'in', [10, 20])->sum('deposit');
+            $total_back = Db::name('orders')->alias('o')
+                ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->where($filter)->where('o.status', 'in', [10, 20])
+                ->where('o.is_deleted', 0)->sum('deposit');
             $this->assign('total_back', $total_back);
-
-            foreach ($where as $k => $v){
-                $v[0] = 'o.'.$v[0];
-                $where[$k] = $v;
-            }
 
             $this->_query(Db::name('orders'))->alias('o')->where($where)
                 ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
@@ -64,23 +67,30 @@ class Finance extends Base
     {
         $this->applyCsrfToken();
         if($this->request->isGet()){
-            $where1 = [];
-            $where1[] = ['o.status', 'in', [10, 20, 30]];
-            $where1[] = ['o.is_deleted', '=', 0];
+            $data = $this->request->only(['start_time', 'end_time', 'stu_name', 'salesman']);
+
+            $where = [];
+            $where[] = ['o.status', 'in', [10, 20, 30]];
+            $where[] = ['o.is_deleted', '=', 0];
+
+            $filter = [];
+            if($data['start_time']) $filter[] = ['pay_time', '>= time', $data['start_time']];
+            if($data['end_time']) $filter[] = ['pay_time', '<= time', $data['end_time'].' 23:59:59'];
+            if($data['stu_name']) $filter[] = ['stu_name', 'like', '%'.$data['stu_name'].'%'];
+            if($data['salesman']) $filter[] = ['su.real_name', 'like', '%'.$data['salesman'].'%'];
 
             // 获取订单列表
-            $orders = Db::name('orders')->alias('o')->where($where1)
+            $orders = Db::name('orders')->alias('o')
                 ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->where($where)->where($filter)
                 ->field('o.id, o.stu_name, su.real_name as salesman, o.total_money, o.front_money, o.pay_time, o.pay_money, o.deposit, o.public_water_rate, o.actual_public_water_rate')
                 ->select();
             if(empty($orders)) $this->error('暂无订单可统计，导出失败！');
 
-            $where = [];
-            $where[] = ['status', 'in', [10, 20, 30]];
-            $where[] = ['is_deleted', '=', 0];
-
             // 各项统计
-            $total_amount = Db::name('orders')->where($where)
+            $total_amount = Db::name('orders')->alias('o')
+                ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->where($where)->where($filter)
                 ->fieldRaw('SUM(`total_money`) as total_money,
                  SUM(`front_money`) as total_front_money,
                  SUM(`pay_money`) as total_pay_money,
@@ -89,8 +99,10 @@ class Finance extends Base
                  SUM(`actual_public_water_rate`) as total_actual_water_money')->find();
 
             // 应退总额，已预订和已入住的
-            $total_back = Db::name('orders')->where($where)
-                ->where('status', 'in', [10, 20])->sum('deposit');
+            $total_back = Db::name('orders')->alias('o')
+                ->leftJoin(['ap_system_user' => 'su'], 'o.salesman_id = su.id')
+                ->where($filter)->where('o.status', 'in', [10, 20])
+                ->where('o.is_deleted', 0)->sum('deposit');
 
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();

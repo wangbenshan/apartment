@@ -2,7 +2,7 @@
 
 {block name="button"}
 {if auth("export")}
-<button data-href='{:url("export")}' data-title="导出财务报表" class='layui-btn layui-btn-sm layui-btn-primary'>导出财务报表</button>
+<button id="export_btn" data-title="导出财务报表" class='layui-btn layui-btn-sm layui-btn-primary'>导出财务报表</button>
 {/if}
 {/block}
 
@@ -104,5 +104,11 @@
     // 起始时间/截止时间 选择面板渲染
     laydate.render($.extend(date_base_config, {elem: '[name=start_time]'}));
     laydate.render($.extend(date_base_config, {elem: '[name=end_time]'}));
+
+    $('#export_btn').click(function () {
+        let formData = $('.form-search').serialize();
+        window.location.href = '{:url("export")}?'+formData;
+    });
+
 </script>
 {/block}
